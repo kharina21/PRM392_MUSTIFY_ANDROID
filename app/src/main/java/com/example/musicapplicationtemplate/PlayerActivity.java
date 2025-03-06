@@ -27,6 +27,7 @@ public class PlayerActivity extends AppCompatActivity {
     private ArrayList<Song> playlist;
     private int currentIndex;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,6 +111,7 @@ public class PlayerActivity extends AppCompatActivity {
         });
     }
 
+
     private void updatePlayPauseButton() {
         playerPlayPause.setImageResource(musicPlayerManager.isPlaying() ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play);
     }
@@ -127,7 +129,7 @@ public class PlayerActivity extends AppCompatActivity {
 
     private void toggleRepeat() {
         musicPlayerManager.toggleRepeat();
-        repeatMode = musicPlayerManager.getRepeatMode();
+//        repeatMode = musicPlayerManager.getRepeatMode();
         switch (repeatMode) {
             case 0:
                 playerRepeat.setImageResource(R.drawable.repeat_off);
@@ -140,6 +142,8 @@ public class PlayerActivity extends AppCompatActivity {
                 break;
         }
     }
+
+
 
     private String formatTime(int millis) {
         int minutes = (millis / 1000) / 60;

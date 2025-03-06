@@ -119,9 +119,6 @@ public class MusicPlayerManager {
     public int getCurrentPosition() {
         return mediaPlayer != null ? mediaPlayer.getCurrentPosition() : 0;
     }
-    public int getRepeatMode() {
-        return repeatMode;
-    }
 
     public boolean isPlaying() {
         return isPlaying;
