@@ -1,10 +1,7 @@
 package com.example.musicapplicationtemplate;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.ImageView;
@@ -15,62 +12,67 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
+
 import model.Song;
 
 public class PlayerActivity extends AppCompatActivity {
-    private ImageView playerImage, playerPlayPause, playerPrevious, playerNext;
-    private TextView playerTitle, playerArtist;
+    private ImageView playerImage, playerPlayPause, playerPrevious, playerNext, playerShuffle, playerRepeat;
+    private TextView playerTitle, playerArtist, elapsedTime, remainingTime;
     private SeekBar seekBar;
     private Handler handler = new Handler();
     private MusicPlayerManager musicPlayerManager;
-    private Song currentSong;
-    private boolean isPlaying;
-
-    private BroadcastReceiver updateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if(MusicService.ACTION_UPDATE_SEEKBAR.equals(intent.getAction())){
-                int currentPosition = intent.getIntExtra(MusicService.EXTRA_CURRENT_POSITION, 0);
-                seekBar.setProgress(currentPosition);
-            }
-        }
-    };
+    private boolean isShuffle;
+    private int repeatMode;
+    private ArrayList<Song> playlist;
+    private int currentIndex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
-        // Khởi tạo UI
         playerImage = findViewById(R.id.player_image);
         playerTitle = findViewById(R.id.player_title);
         playerArtist = findViewById(R.id.player_artist);
-        playerPlayPause = findViewById(R.id.player_play_pause);
-        playerPrevious = findViewById(R.id.player_previous);
-        playerNext = findViewById(R.id.player_next);
-        seekBar = findViewById(R.id.seekBarMiniPlayer);
+        playerPlayPause = findViewById(R.id.playerPlayPause);
+        playerPrevious = findViewById(R.id.playerPrevious);
+        playerNext = findViewById(R.id.playerNext);
+        playerShuffle = findViewById(R.id.playerShuffle);
+        playerRepeat = findViewById(R.id.playerRepeat);
+        seekBar = findViewById(R.id.seekBar);
+        elapsedTime = findViewById(R.id.elapsedTime);
+        remainingTime = findViewById(R.id.remainingTime);
+
         musicPlayerManager = MusicPlayerManager.getInstance();
 
-        setupSeekBar();
-
-        // Lấy dữ liệu từ Intent
         Intent intent = getIntent();
-        if (intent != null && intent.hasExtra("song")) {
-            currentSong = (Song) intent.getSerializableExtra("song");
-            int currentPosition = intent.getIntExtra("current_position", 0);
-            isPlaying = intent.getBooleanExtra("is_playing", false);
-
-            setupUI(currentSong);
-            continuePlaying(currentPosition, isPlaying);
+        if (intent != null && intent.hasExtra("playlist")) {
+            playlist = (ArrayList<Song>) intent.getSerializableExtra("playlist");
+            currentIndex = intent.getIntExtra("current_index", 0);
+            musicPlayerManager.setPlaylist(playlist, currentIndex);
+            musicPlayerManager.playSong(this, playlist.get(currentIndex));
         }
 
-        // Xử lý sự kiện
+        setupUI();
+        setupSeekBar();
+        updatePlayPauseButton();
+
         playerPlayPause.setOnClickListener(v -> togglePlayPause());
-        playerPrevious.setOnClickListener(v -> playPreviousSong());
-        playerNext.setOnClickListener(v -> playNextSong());
+        playerPrevious.setOnClickListener(v -> {
+            musicPlayerManager.playPrevious(this);
+            setupUI();
+        });
+        playerNext.setOnClickListener(v -> {
+            musicPlayerManager.playNext(this);
+            setupUI();
+        });
+        playerShuffle.setOnClickListener(v -> toggleShuffle());
+        playerRepeat.setOnClickListener(v -> toggleRepeat());
     }
 
-    private void setupUI(Song song) {
+    private void setupUI() {
+        Song song = musicPlayerManager.getCurrentSong();
         if (song != null) {
             playerTitle.setText(song.getTitle());
             playerArtist.setText(song.getArtist());
@@ -78,37 +80,25 @@ public class PlayerActivity extends AppCompatActivity {
         }
     }
 
-    private void continuePlaying(int position, boolean playing) {
-        if (musicPlayerManager.getMediaPlayer() != null) {
-            seekBar.setMax(musicPlayerManager.getMediaPlayer().getDuration());
-            seekBar.setProgress(position);
-            updatePlayPauseButton();
-            setupSeekBar();
-        }
-    }
-
-    private void updatePlayPauseButton() {
-        playerPlayPause.setImageResource(musicPlayerManager.isPlaying() ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play);
-    }
-
     private void setupSeekBar() {
-        seekBar.setMax(musicPlayerManager.getMediaPlayer().getDuration());
-        Runnable updateSeekBar = new Runnable() {
+        seekBar.setMax(musicPlayerManager.getDuration());
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (musicPlayerManager.getMediaPlayer() != null) {
-                    seekBar.setProgress(musicPlayerManager.getCurrentPosition());
-                    handler.postDelayed(this, 500);
-                }
+                int currentPosition = musicPlayerManager.getCurrentPosition();
+                int totalDuration = musicPlayerManager.getDuration();
+                seekBar.setProgress(currentPosition);
+                elapsedTime.setText(formatTime(currentPosition));
+                remainingTime.setText(formatTime(totalDuration - currentPosition));
+                handler.postDelayed(this, 500);
             }
-        };
-        handler.post(updateSeekBar);
+        }, 500);
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    musicPlayerManager.getMediaPlayer().seekTo(progress);
+                    musicPlayerManager.seekTo(progress);
                 }
             }
 
@@ -120,31 +110,41 @@ public class PlayerActivity extends AppCompatActivity {
         });
     }
 
+    private void updatePlayPauseButton() {
+        playerPlayPause.setImageResource(musicPlayerManager.isPlaying() ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play);
+    }
+
     private void togglePlayPause() {
         musicPlayerManager.togglePlayPause();
         updatePlayPauseButton();
     }
 
-    private void playPreviousSong() {
-        // TODO: Thêm logic chuyển bài trước (yêu cầu danh sách bài hát)
+    private void toggleShuffle() {
+        isShuffle = !isShuffle;
+        musicPlayerManager.toggleShuffle();
+        playerShuffle.setImageResource(isShuffle ? R.drawable.shuffle : R.drawable.shuffle_off);
     }
 
-    private void playNextSong() {
-        // TODO: Thêm logic chuyển bài tiếp (yêu cầu danh sách bài hát)
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            registerReceiver(updateReceiver, new IntentFilter(MusicService.ACTION_UPDATE_SEEKBAR), Context.RECEIVER_NOT_EXPORTED);
+    private void toggleRepeat() {
+        musicPlayerManager.toggleRepeat();
+        repeatMode = musicPlayerManager.getRepeatMode();
+        switch (repeatMode) {
+            case 0:
+                playerRepeat.setImageResource(R.drawable.repeat_off);
+                break;
+            case 1:
+                playerRepeat.setImageResource(R.drawable.repeat);
+                break;
+            case 2:
+                playerRepeat.setImageResource(R.drawable.repeat_1);
+                break;
         }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceiver(updateReceiver);
+    private String formatTime(int millis) {
+        int minutes = (millis / 1000) / 60;
+        int seconds = (millis / 1000) % 60;
+        return String.format("%02d:%02d", minutes, seconds);
     }
 
     @Override

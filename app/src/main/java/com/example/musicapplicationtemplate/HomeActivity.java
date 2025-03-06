@@ -62,8 +62,14 @@ public class HomeActivity extends AppCompatActivity {
                     musicPlayerManager.seekTo(progress);
                 }
             }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) { }
-            @Override public void onStopTrackingTouch(SeekBar seekBar) { }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
         });
 
         // Runnable cập nhật SeekBar theo thời gian chạy của bài hát (mỗi giây)
@@ -83,7 +89,6 @@ public class HomeActivity extends AppCompatActivity {
     private void loadSongs() {
         SongDAO songDAO = new SongDAO();
         List<Song> songs = songDAO.getAllSongs();
-
         SongAdapter songAdapter = new SongAdapter(this, songs, this::playSong);
         rvSongs.setAdapter(songAdapter);
         rvSongs.setLayoutManager(new LinearLayoutManager(this));

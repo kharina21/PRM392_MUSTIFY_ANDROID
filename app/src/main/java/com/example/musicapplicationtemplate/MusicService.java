@@ -29,8 +29,8 @@ public class MusicService extends Service {
                     intent.putExtra(EXTRA_CURRENT_POSITION, currentPosition);
                     sendBroadcast(intent);
                 }
-                // Cập nhật sau mỗi 1 giây
-                handler.postDelayed(this, 1000);
+                // Cập nhật sau mỗi 500 ms giây
+                handler.postDelayed(this, 500);
             }
         };
         handler.post(updateSeekBar);
