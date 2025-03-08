@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -15,44 +15,48 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MusicApplicationTemplate"
-        tools:targetApi="31">
-        <activity
-            android:name=".PlayerActivity"
-            android:exported="false" />
-        <activity
-            android:name=".GetPasswordActivity"
-            android:exported="false" />
-        <activity
-            android:name=".EnterCodeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".RegisterSuccessActivity"
-            android:exported="false" />
-        <activity
-            android:name=".HomeActivity"
-            android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
+        tools:targetApi="31" >
+        <service
+            android:name=".utils.MyService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
 
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-        </activity>
         <activity
-            android:name=".ForgotAccountActivity"
-            android:exported="false" />
-        <activity
-            android:name=".RegisterActivity"
-            android:exported="false" />
-        <activity
-            android:name=".LoginActivity"
-            android:exported="true">
+            android:name=".ui.activities.MainActivity"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.activities.GetPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activities.EnterCodeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activities.RegisterSuccessActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activities.ForgotAccountActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activities.RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activities.LoginActivity"
+            android:exported="true" />
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-        <service android:name=".MusicService" android:exported="false" />
+
+        <service
+            android:name=".utils.MusicService"
+            android:exported="false" />
     </application>
 
 </manifest>
