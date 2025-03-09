@@ -67,12 +67,11 @@ public class MainActivity extends AppCompatActivity {
 
                     if (selectedFragment != null) {
                         getSupportFragmentManager().beginTransaction()
-                                .setCustomAnimations(R.anim.slide_up, R.anim.fade_out)
                                 .replace(R.id.fragment_container, selectedFragment)
                                 .commit();
 
                         // Chỉ hiển thị MiniPlayerFragment nếu có bài hát đang phát
-                        if (musicPlayerManager.getCurrentSong() != null ) {
+                        if (musicPlayerManager.getCurrentSong() != null && musicPlayerManager.isPlaying() ) {
                             toggleMiniPlayerVisibility(true);
                         } else {
                             toggleMiniPlayerVisibility(false);

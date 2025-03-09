@@ -16,11 +16,11 @@
         android:id="@+id/itemSong2Img"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:background="@drawable/rounded_bg"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_profile"
+        android:background="@drawable/rounded_bg"
+        android:clipToOutline="true"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

@@ -22,6 +22,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="Nghe gần đây"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#fff"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rvList5Lastest" />
 
@@ -31,6 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:background="@drawable/rounded_bg"
+        android:backgroundTint="#3d3d3d"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
@@ -43,7 +47,10 @@
             android:id="@+id/imageView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            android:clipToOutline="true"
             android:padding="10dp"
+            android:background="#B7B1F2"
             app:srcCompat="@drawable/ic_favorite" />
 
         <TextView
@@ -51,6 +58,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textColor="#fff"
+            android:layout_marginStart="10dp"
             android:text="Bài hát ưa thích" />
     </LinearLayout>
 
@@ -72,6 +81,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="Mới phát hành dành cho bạn"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
