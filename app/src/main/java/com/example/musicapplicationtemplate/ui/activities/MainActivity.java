@@ -15,13 +15,18 @@ import com.example.musicapplicationtemplate.ui.fragments.LibraryFragment;
 import com.example.musicapplicationtemplate.ui.fragments.MiniPlayerFragment;
 import com.example.musicapplicationtemplate.ui.fragments.ProfileFragment;
 import com.example.musicapplicationtemplate.ui.fragments.SearchFragment;
+import com.example.musicapplicationtemplate.utils.MusicPlayerManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
+    private MusicPlayerManager musicPlayerManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        musicPlayerManager = MusicPlayerManager.getInstance();
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
@@ -65,7 +70,13 @@ public class MainActivity extends AppCompatActivity {
                                 .setCustomAnimations(R.anim.slide_up, R.anim.fade_out)
                                 .replace(R.id.fragment_container, selectedFragment)
                                 .commit();
-                        toggleMiniPlayerVisibility(true); // Hiển thị MiniPlayerFragment khi chuyển menu
+
+                        // Chỉ hiển thị MiniPlayerFragment nếu có bài hát đang phát
+                        if (musicPlayerManager.getCurrentSong() != null ) {
+                            toggleMiniPlayerVisibility(true);
+                        } else {
+                            toggleMiniPlayerVisibility(false);
+                        }
                     }
 
                     return true;

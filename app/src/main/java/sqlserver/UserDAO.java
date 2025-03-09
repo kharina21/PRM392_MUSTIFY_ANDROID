@@ -192,6 +192,46 @@ public class UserDAO extends DBContext {
         return false;
     }
 
+    public User getUserById(int id){
+        String sql = "SELECT  [User_id]\n" +
+                "      ,[username]\n" +
+                "      ,[password]\n" +
+                "      ,[first_name]\n" +
+                "      ,[last_name]\n" +
+                "      ,[gender]\n" +
+                "      ,[phone]\n" +
+                "      ,[email]\n" +
+                "      ,[address]\n" +
+                "      ,[join_date]\n" +
+                "      ,[account_type]\n" +
+                "      ,[is_active]\n" +
+                "  FROM [MUSTIFY].[dbo].[User]\n" +
+                "  where User_id = ?";
+        try{
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1,id);
+            ResultSet rs = st.executeQuery();
+            if(rs.next()){
+                User a = new User();
+                a.setId(rs.getInt("User_id"));
+                a.setUsername(rs.getString("username"));
+                a.setPassword(rs.getString("password"));
+                a.setFirst_name(rs.getString("first_name"));
+                a.setLast_name(rs.getString("last_name"));
+                a.setGender(rs.getBoolean("gender"));
+                a.setPhone(rs.getString("phone"));
+                a.setEmail(rs.getString("email"));
+                a.setAddress(rs.getString("address"));
+                a.setJoined_date(rs.getDate("join_date"));
+                a.setAccount_type(rs.getInt("account_type"));
+                a.setIs_active(rs.getBoolean("is_active"));
+                return a;
+            }
+        }catch(SQLException e){
+            e.printStackTrace();
+        } return null;
+    }
+
     public boolean changeActiveStatusByUserId(String username, boolean active) {
         String sql = "\n" +
                 "UPDATE [dbo].[User]\n" +

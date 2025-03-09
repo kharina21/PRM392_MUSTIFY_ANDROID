@@ -75,7 +75,11 @@ public class PlayerFragment extends Fragment {
     private void closePlayerFragment() {
         MainActivity mainActivity = (MainActivity) getActivity();
         if (mainActivity != null) {
-            mainActivity.toggleMiniPlayerVisibility(true); // Hiển thị MiniPlayerFragment
+            if (musicPlayerManager.getCurrentSong() != null && musicPlayerManager.isPlaying()) {
+                mainActivity.toggleMiniPlayerVisibility(true); // Hiển thị MiniPlayerFragment nếu còn bài hát đang phát
+            } else {
+                mainActivity.toggleMiniPlayerVisibility(false); // Ẩn MiniPlayerFragment nếu không còn bài hát nào đang phát
+            }
             mainActivity.onBackPressed(); // Quay lại fragment trước đó
         }
     }

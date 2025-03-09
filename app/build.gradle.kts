@@ -49,5 +49,6 @@ dependencies {
     implementation(libs.glide)
     annotationProcessor (libs.compiler)
     implementation (libs.media)
+    implementation (libs.gson)
 
 }

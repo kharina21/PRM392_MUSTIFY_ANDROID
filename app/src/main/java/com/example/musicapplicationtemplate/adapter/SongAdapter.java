@@ -1,7 +1,7 @@
 package com.example.musicapplicationtemplate.adapter;
 
-
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,50 +15,72 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.musicapplicationtemplate.R;
-
+import com.example.musicapplicationtemplate.utils.UserSession;
 
 import java.util.List;
 
+import model.RecentlyPlayed;
 import model.Song;
-
+import model.User;
+import sqlserver.RecentlyPlayedDAO;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
     Context context;
     List<Song> songs;
-
+    private final int layoutId;
     private final OnSongClickListener songClickListener;
+
+    private UserSession usersession;
+
     public interface OnSongClickListener {
         void onSongClick(Song song);
     }
-    public SongAdapter(Context context, List<Song> songs, OnSongClickListener songClickListener) {
+
+    public SongAdapter(Context context, List<Song> songs, int layoutId, OnSongClickListener songClickListener) {
         this.context = context;
         this.songs = songs;
+        this.layoutId = layoutId;
         this.songClickListener = songClickListener;
+        this.usersession = new UserSession(context);
     }
 
     @NonNull
     @Override
     public SongAdapter.SongViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.item_song_1, parent, false);
-        return new SongViewHolder(view);
+        View view = inflater.inflate(layoutId, parent, false);
+        return new SongViewHolder(view, layoutId);
     }
 
     @Override
     public void onBindViewHolder(@NonNull SongAdapter.SongViewHolder holder, int position) {
         Song song = songs.get(position);
-        holder.tvTitle.setText(songs.get(position).getTitle());
-        holder.tvArtist.setText(songs.get(position).getArtist());
 
-        String file_path = "file:///android_asset/" + songs.get(position).getImage();
-        Glide.with(context).load(file_path).into(holder.imgSong);
+        if (holder.tvTitle != null) holder.tvTitle.setText(song.getTitle());
+        if (holder.tvArtist != null) holder.tvArtist.setText(song.getArtist());
+
+        String file_path = "file:///android_asset/" + song.getImage();
+        if (holder.imgSong != null) {
+            Glide.with(context).load(file_path).into(holder.imgSong);
+        }
 
         holder.itemView.setOnClickListener(v -> {
+
+            //add vao recently played
+            User u = usersession.getUserSession();
+            RecentlyPlayed rp = new RecentlyPlayed();
+            RecentlyPlayedDAO rpd = new RecentlyPlayedDAO();
+            rpd.addSongPlayed(u,song);
+            Log.d("add song to recently played list", "add song to recently played list: "+song.getTitle());
             if (songClickListener != null) {
                 songClickListener.onSongClick(song);
             }
         });
-        holder.imgOptions.setOnClickListener(v -> showOptionsMenu(v, song));
+
+        if (holder.imgOptions != null) {
+            holder.imgOptions.setOnClickListener(v -> showOptionsMenu(v, song));
+        }
     }
 
     private void showOptionsMenu(View v, Song song) {
@@ -66,17 +88,15 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         popup.inflate(R.menu.song_options_menu);
 
         popup.setOnMenuItemClickListener(item -> {
-            Song selectedSong = song; // Lấy đúng bài hát theo vị trí
-
             if (item.getItemId() == R.id.option_play) {
-                Toast.makeText(context, "Play " + selectedSong.getTitle(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Play " + song.getTitle(), Toast.LENGTH_SHORT).show();
                 songClickListener.onSongClick(song);
                 return true;
             } else if (item.getItemId() == R.id.option_add_to_playlist) {
-                Toast.makeText(context, "Added to Playlist: " + selectedSong.getTitle(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Added to Playlist: " + song.getTitle(), Toast.LENGTH_SHORT).show();
                 return true;
             } else if (item.getItemId() == R.id.option_delete) {
-                Toast.makeText(context, "Deleted: " + selectedSong.getTitle(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Deleted: " + song.getTitle(), Toast.LENGTH_SHORT).show();
                 return true;
             } else {
                 return false;
@@ -85,24 +105,30 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
         popup.show();
     }
-@Override
-public int getItemCount() {
-    return songs.size();
-}
 
-public static class SongViewHolder extends RecyclerView.ViewHolder {
-
-    ImageView imgSong;
-    TextView tvTitle;
-    TextView tvArtist;
-    ImageView imgOptions;
-
-    public SongViewHolder(@NonNull View itemView) {
-        super(itemView);
-        imgSong = itemView.findViewById(R.id.imgSong);
-        tvTitle = itemView.findViewById(R.id.tvTitle);
-        tvArtist = itemView.findViewById(R.id.tvArtist);
-        imgOptions = itemView.findViewById(R.id.imgOptions);
+    @Override
+    public int getItemCount() {
+        return songs.size();
     }
-}
+
+    public static class SongViewHolder extends RecyclerView.ViewHolder {
+        ImageView imgSong, imgOptions;
+        TextView tvTitle, tvArtist;
+
+        public SongViewHolder(@NonNull View itemView, int layoutId) {
+            super(itemView);
+
+            if (layoutId == R.layout.item_song_1) {
+                imgSong = itemView.findViewById(R.id.imgSong);
+                tvTitle = itemView.findViewById(R.id.tvTitle);
+                tvArtist = itemView.findViewById(R.id.tvArtist);
+                imgOptions = itemView.findViewById(R.id.imgOptions);
+            } else if (layoutId == R.layout.item_song_2) {
+                imgSong = itemView.findViewById(R.id.itemSong2Img);
+                tvTitle = itemView.findViewById(R.id.itemSong2Title);
+                tvArtist = itemView.findViewById(R.id.itemSong2Artist);
+                imgOptions = null; // Không có imgOptions trong item_song_2
+            }
+        }
+    }
 }
