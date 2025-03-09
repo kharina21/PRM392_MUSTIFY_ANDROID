@@ -61,7 +61,10 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     if (selectedFragment != null) {
-                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+                        getSupportFragmentManager().beginTransaction()
+                                .setCustomAnimations(R.anim.slide_up, R.anim.fade_out)
+                                .replace(R.id.fragment_container, selectedFragment)
+                                .commit();
                         toggleMiniPlayerVisibility(true); // Hiển thị MiniPlayerFragment khi chuyển menu
                     }
 

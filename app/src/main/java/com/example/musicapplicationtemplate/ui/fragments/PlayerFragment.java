@@ -2,6 +2,7 @@ package com.example.musicapplicationtemplate.ui.fragments;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,8 +76,8 @@ public class PlayerFragment extends Fragment {
         MainActivity mainActivity = (MainActivity) getActivity();
         if (mainActivity != null) {
             mainActivity.toggleMiniPlayerVisibility(true); // Hiển thị MiniPlayerFragment
+            mainActivity.onBackPressed(); // Quay lại fragment trước đó
         }
-        getParentFragmentManager().popBackStack(); // Quay lại fragment trước đó
     }
     private void setupUI() {
         Song song = musicPlayerManager.getCurrentSong();
@@ -133,7 +134,8 @@ public class PlayerFragment extends Fragment {
     }
 
     private void toggleRepeat() {
-        musicPlayerManager.toggleRepeat();
+        repeatMode = (repeatMode + 1) % 3;
+        Log.d("repeatMode: ", "repeat mode: "+repeatMode);
         switch (repeatMode) {
             case 0:
                 playerRepeat.setImageResource(R.drawable.repeat_off);

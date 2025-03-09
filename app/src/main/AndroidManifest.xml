@@ -56,7 +56,10 @@
 
         <service
             android:name=".utils.MusicService"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback"
+            android:permission="android.permission.FOREGROUND_SERVICE"
+            tools:ignore="ForegroundServicePermission" />
     </application>
 
 </manifest>
