@@ -13,7 +13,7 @@ public class DBContext {
 //    protected static String ip = "192.168.1.109";
 
     //wifi truong
-    protected static String ip = "192.168.1.109";
+    protected static String ip = "10.33.10.138";
 
     protected static String port = "1433";
     protected static String db = "MUSTIFY";

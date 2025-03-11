@@ -6,11 +6,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,26 +20,31 @@ import com.example.musicapplicationtemplate.R;
 import com.example.musicapplicationtemplate.ui.activities.MainActivity;
 import com.example.musicapplicationtemplate.utils.MusicPlayerManager;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.example.musicapplicationtemplate.adapter.SongAdapter;
 import com.example.musicapplicationtemplate.utils.UserSession;
 
+import model.Like;
 import model.RecentlyPlayed;
 import model.Song;
+import sqlserver.LikeDAO;
 import sqlserver.RecentlyPlayedDAO;
 import sqlserver.SongDAO;
 
 public class HomeFragment extends Fragment implements MusicPlayerManager.OnPlaybackChangeListener {
 
-    private RecyclerView rvList5Lastest,rvRecentlyPlayed;
+    private RecyclerView rvList5Lastest, rvRecentlyPlayed;
     private TextView tvWelcomeTag;
     private MusicPlayerManager musicPlayerManager;
     private MiniPlayerFragment miniPlayerFragment;
+    private LinearLayout btnSongLike;
     private Handler handler = new Handler();
     private Runnable updateSeekBarRunnable;
     private UserSession usersession;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -45,6 +52,7 @@ public class HomeFragment extends Fragment implements MusicPlayerManager.OnPlayb
         //su dung usersession de lay user
         usersession = new UserSession(requireContext());
 
+        btnSongLike = view.findViewById(R.id.btnSongLike);
         tvWelcomeTag = view.findViewById(R.id.tvWelcomeTag);
         rvList5Lastest = view.findViewById(R.id.rvList5Lastest);
         rvRecentlyPlayed = view.findViewById(R.id.rvRecentlyPlayed);
@@ -57,8 +65,11 @@ public class HomeFragment extends Fragment implements MusicPlayerManager.OnPlayb
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         loadSongs();
-        tvWelcomeTag.setText("Hello "+ usersession.getUserSession().getUsername());
+        tvWelcomeTag.setText("Hello " + usersession.getUserSession().getUsername());
         musicPlayerManager.setOnPlaybackChangeListener(this);
+
+        //btnSongLike
+        btnSongLike.setOnClickListener(v -> toggleSongLike());
 
         if (miniPlayerFragment != null) {
             miniPlayerFragment.getView().setVisibility(View.GONE);
@@ -82,13 +93,35 @@ public class HomeFragment extends Fragment implements MusicPlayerManager.OnPlayb
         };
     }
 
+    private void toggleSongLike() {
+        LikeDAO ldb = new LikeDAO();
+        List<Like> listLike = ldb.getListSongLikeByUserId(usersession.getUserSession().getId());
+        List<Song> listSong = new ArrayList<>();
+        for(Like l : listLike){
+            listSong.add(l.getSong());
+        }
+        Log.d("Button Song Like", "Button Song Like");
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("list_song_like", (Serializable) listSong);
+        SongLikeFragment SongLikeFragment = new SongLikeFragment();
+        SongLikeFragment.setArguments(bundle);
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        //animation
+        transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
+        transaction.replace(R.id.fragment_container, new SongLikeFragment());
+        // Thêm vào back stack để có thể quay lại
+        transaction.addToBackStack(null);
+        // Thực hiện transaction
+        transaction.commit();
+    }
+
     private void loadSongs() {
         SongDAO songDAO = new SongDAO();
         List<Song> List5Lastest = songDAO.getLastest5Songs();
-        SongAdapter songAdapter1 = new SongAdapter(getContext(), List5Lastest,R.layout.item_song_2, this::playSong);
+        SongAdapter songAdapter1 = new SongAdapter(getContext(), List5Lastest, R.layout.item_song_2, this::playSong);
         rvList5Lastest.setAdapter(songAdapter1);
         //Recycle View theo chieu doc
-//        rvList5Lastest.setLayoutManager(new LinearLayoutManager(getContext()));
+        //rvList5Lastest.setLayoutManager(new LinearLayoutManager(getContext()));
         //theo chieu ngang
         rvList5Lastest.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
@@ -97,16 +130,11 @@ public class HomeFragment extends Fragment implements MusicPlayerManager.OnPlayb
         RecentlyPlayedDAO rpd = new RecentlyPlayedDAO();
         List<RecentlyPlayed> listRecentlyPlayed = rpd.get10SongsRecentlyPlayedByUserId(usersession.getUserSession().getId());
         List<Song> listSongRecentlyPlayed = new ArrayList<>();
-        Log.d("list RecentlyPLayed","list RecentlyPLayed: "+listRecentlyPlayed);
 
-        SongDAO sdb = new SongDAO();
-        Song s1 = sdb.getSongById(1);
-        Log.d("Song by id 1","Song by id 1: "+ s1);
-        for(RecentlyPlayed rp : listRecentlyPlayed){
-            Log.d("Song in recentplay list","Song in recentplay list: "+ rp.getSong());
+        for (RecentlyPlayed rp : listRecentlyPlayed) {
             listSongRecentlyPlayed.add(rp.getSong());
         }
-        SongAdapter songAdapter2 = new SongAdapter(getContext(), listSongRecentlyPlayed,R.layout.item_song_2,this::playSong);
+        SongAdapter songAdapter2 = new SongAdapter(getContext(), listSongRecentlyPlayed, R.layout.item_song_2, this::playSong);
         rvRecentlyPlayed.setAdapter(songAdapter2);
         rvRecentlyPlayed.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
     }

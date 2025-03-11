@@ -22,14 +22,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="Nghe gần đây"
+        android:textColor="#fff"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="#fff"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rvList5Lastest" />
 
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:id="@+id/btnSongLike"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
@@ -47,20 +47,20 @@
             android:id="@+id/imageView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:scaleType="centerCrop"
+            android:background="#B7B1F2"
             android:clipToOutline="true"
             android:padding="10dp"
-            android:background="#B7B1F2"
+            android:scaleType="centerCrop"
             app:srcCompat="@drawable/ic_favorite" />
 
         <TextView
             android:id="@+id/textView17"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="#fff"
             android:layout_marginStart="10dp"
-            android:text="Bài hát ưa thích" />
+            android:layout_weight="1"
+            android:text="Bài hát ưa thích"
+            android:textColor="#fff" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -72,8 +72,7 @@
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/NewRelease"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/NewRelease" />
 
     <TextView
         android:id="@+id/NewRelease"
@@ -87,7 +86,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/btnSongLike" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvRecentlyPlayed"
@@ -98,6 +97,5 @@
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvWelcomeTag3"
-       />
+        app:layout_constraintTop_toBottomOf="@+id/tvWelcomeTag3" />
 </androidx.constraintlayout.widget.ConstraintLayout>

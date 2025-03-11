@@ -1,11 +1,16 @@
 package com.example.musicapplicationtemplate.ui.fragments;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -73,16 +78,40 @@ public class PlayerFragment extends Fragment {
         return view;
     }
     private void closePlayerFragment() {
-        MainActivity mainActivity = (MainActivity) getActivity();
-        if (mainActivity != null) {
-            if (musicPlayerManager.getCurrentSong() != null && musicPlayerManager.isPlaying()) {
-                mainActivity.toggleMiniPlayerVisibility(true); // Hiển thị MiniPlayerFragment nếu còn bài hát đang phát
-            } else {
-                mainActivity.toggleMiniPlayerVisibility(false); // Ẩn MiniPlayerFragment nếu không còn bài hát nào đang phát
-            }
-            mainActivity.onBackPressed(); // Quay lại fragment trước đó
+        View view = getView();
+        if (view != null) {
+            ObjectAnimator slideDown = ObjectAnimator.ofFloat(view, "translationY", 0, view.getHeight());
+            slideDown.setDuration(300);
+            slideDown.setInterpolator(new AccelerateInterpolator()); // Tăng tốc dần
+
+            slideDown.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {}
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    MainActivity mainActivity = (MainActivity) getActivity();
+                    if (mainActivity != null) {
+                        if (musicPlayerManager.getCurrentSong() != null) {
+                            mainActivity.toggleMiniPlayerVisibility(true);
+                        } else {
+                            mainActivity.toggleMiniPlayerVisibility(false);
+                        }
+                        mainActivity.onBackPressed();
+                    }
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {}
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {}
+            });
+
+            slideDown.start();
         }
     }
+
     private void setupUI() {
         Song song = musicPlayerManager.getCurrentSong();
         if (song != null) {

@@ -125,7 +125,7 @@ public class MiniPlayerFragment extends Fragment {
     private void openPlayerFragment() {
         PlayerFragment playerFragment = new PlayerFragment();
         getParentFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.slide_up, R.anim.fade_out)
+                .setCustomAnimations(R.anim.slide_up, R.anim.slide_down)
                 .replace(R.id.fragment_container, playerFragment)
                 .addToBackStack(null) // Lưu trạng thái fragment trước đó
                 .commit();
