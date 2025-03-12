@@ -43,6 +43,7 @@ dependencies {
     implementation (libs.android.activation)
     implementation(libs.firebase.storage)
     implementation(libs.media3.common)
+    implementation(libs.palette)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

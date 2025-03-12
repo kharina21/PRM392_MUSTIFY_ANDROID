@@ -21,7 +21,13 @@ public class MusicPlayerManager {
     private OnSeekBarChangeListener seekBarChangeListener;
     private OnUIUpdateListener uiUpdateListener;
     private Handler seekBarHandler = new Handler();
-
+    public interface OnSongChangedListener {
+        void onSongChanged();
+    }
+    private OnSongChangedListener songChangedListener;
+    public void setOnSongChangedListener(OnSongChangedListener listener) {
+        this.songChangedListener = listener;
+    }
     private MusicPlayerManager() {
         mediaPlayer = new MediaPlayer();
         playlist = new ArrayList<>();
@@ -126,23 +132,10 @@ public class MusicPlayerManager {
         isShuffle = !isShuffle;
     }
     public void playNext(Context context) {
-        if (repeatMode == 2) { // Repeat One
-            playSong(context, currentSong);
-            return;
+        // Chuyển bài hát tiếp theo
+        if (songChangedListener != null) {
+            songChangedListener.onSongChanged();
         }
-        if (isShuffle) {
-            currentIndex = new Random().nextInt(playlist.size());
-        } else {
-            currentIndex++;
-            if (currentIndex >= playlist.size()) {
-                if (repeatMode == 1) { // Repeat All
-                    currentIndex = 0;
-                } else {
-                    return;
-                }
-            }
-        }
-        playSong(context, playlist.get(currentIndex));
     }
 
     public void playPrevious(Context context) {
@@ -153,6 +146,7 @@ public class MusicPlayerManager {
         }
         playSong(context, playlist.get(currentIndex));
     }
+
     public void setOnPlaybackChangeListener(OnPlaybackChangeListener listener) {
         this.playbackChangeListener = listener;
     }

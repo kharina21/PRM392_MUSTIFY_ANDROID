@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="22dp">
+    android:padding="12dp">
 
 
     <TextView
@@ -20,10 +20,10 @@
         android:id="@+id/tvWelcomeTag3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="26dp"
         android:text="Nghe gần đây"
         android:textColor="#fff"
-        android:textSize="24sp"
+        android:textSize="26dp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rvList5Lastest" />
@@ -45,8 +45,8 @@
 
         <ImageView
             android:id="@+id/imageView5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:background="#B7B1F2"
             android:clipToOutline="true"
             android:padding="10dp"
@@ -60,17 +60,19 @@
             android:layout_marginStart="10dp"
             android:layout_weight="1"
             android:text="Bài hát ưa thích"
-            android:textColor="#fff" />
+            android:textColor="#ccc" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvList5Lastest"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:clipToPadding="false"
         android:scrollbars="horizontal"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/NewRelease" />
 
@@ -81,7 +83,7 @@
         android:layout_marginTop="20dp"
         android:text="Mới phát hành dành cho bạn"
         android:textColor="@color/white"
-        android:textSize="24sp"
+        android:textSize="26dp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -92,6 +94,7 @@
         android:id="@+id/rvRecentlyPlayed"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:clipToPadding="false"
         android:scrollbars="horizontal"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"

@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -36,10 +37,10 @@ import java.util.List;
 public class SongLikeFragment extends Fragment {
 
     private List<Song> listSongLike;
-    private ImageButton btnSongLikeBack;
+    private ImageView btnSongLikeBack;
     private RecyclerView rvListSongLike;
 
-    private ImageButton btnAddSongToLikeList;
+    private LinearLayout btnAddSongToLikeList;
 
     private UserSession usersession;
     private Handler handler = new Handler();
@@ -66,23 +67,6 @@ public class SongLikeFragment extends Fragment {
                 listSongLike.add(l.getSong());
             }
         }
-        updateSeekBarRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (musicPlayerManager.getCurrentSong() != null && musicPlayerManager.isPlaying()) {
-                    int currentPosition = musicPlayerManager.getCurrentPosition();
-                    MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) getActivity()
-                            .getSupportFragmentManager()
-                            .findFragmentById(R.id.miniPlayerFragment);
-
-                    if (miniPlayerFragment != null) {
-                        miniPlayerFragment.updateSeekBar(currentPosition);
-                    }
-                    handler.postDelayed(this, 1000);
-                }
-            }
-        };
-
 
     }
 
@@ -92,7 +76,7 @@ public class SongLikeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_song_like, container, false);
 
         btnAddSongToLikeList = view.findViewById(R.id.btnAddSongToLikeList);
-        btnAddSongToLikeList.setOnClickListener(v->showAddSongDialog());
+        btnAddSongToLikeList.setOnClickListener(v->showAddSongLikeFragment());
         btnSongLikeBack = view.findViewById(R.id.btnSongLikeBack);
         rvListSongLike = view.findViewById(R.id.rvListSongLike);
         btnSongLikeBack.setOnClickListener(v->toggleSongLikeBack());
@@ -111,7 +95,6 @@ public class SongLikeFragment extends Fragment {
         ft.addToBackStack(null);
         ft.commit();
     }
-
     private void playSong(Song song) {
         musicPlayerManager.playSong(getContext(), song);
         // Thêm bài hát vào Recently Played
@@ -126,100 +109,14 @@ public class SongLikeFragment extends Fragment {
         if (miniPlayerFragment != null) {
             miniPlayerFragment.updateMiniPlayerUI();
             ((MainActivity) getActivity()).toggleMiniPlayerVisibility(true);
-
-            // Cập nhật SeekBar
-            int duration = musicPlayerManager.getDuration();
-            miniPlayerFragment.setSeekBarMax(duration);
-            miniPlayerFragment.updateSeekBar(0);
-
-            handler.removeCallbacks(updateSeekBarRunnable);
-            handler.post(updateSeekBarRunnable);
         }
     }
-    private void showAddSongDialog() {
-        SongDAO songDAO = new SongDAO();
-        LikeDAO likeDAO = new LikeDAO();
-        User user = new UserSession(requireContext()).getUserSession();
-
-        // Lấy toàn bộ bài hát từ database
-        List<Song> allSongs = songDAO.getAllSongs();
-
-        // Lấy danh sách bài hát đã thích
-        List<Like> listLiked = likeDAO.getListSongLikeByUserId(user.getId());
-        List<Song> likedSongs = new ArrayList<>();
-        for(Like like : listLiked) likedSongs.add(like.getSong());
-
-        // Lọc ra danh sách bài hát chưa thích
-        List<Song> songsToShow = new ArrayList<>();
-        for (Song song : allSongs) {
-            boolean isLiked = false;
-            for (Song likedSong : likedSongs) {
-                if (likedSong.getSong_id() == song.getSong_id()) { // So sánh song_id thay vì contains()
-                    isLiked = true;
-                    break;
-                }
-            }
-            if (!isLiked) {
-                songsToShow.add(song);
-            }
-        }
-
-        // Nếu không có bài hát nào mới để thêm
-        if (songsToShow.isEmpty()) {
-            Toast.makeText(requireContext(), "Tất cả bài hát đã có trong danh sách yêu thích!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Hiển thị danh sách bài hát để chọn (sử dụng Dialog hoặc RecyclerView tùy ý)
-        showSongSelectionDialog(songsToShow);
+    private void showAddSongLikeFragment(){
+        FragmentTransaction ft = getParentFragmentManager().beginTransaction();
+        ft.setCustomAnimations(R.anim.slide_up,R.anim.slide_down);
+        ft.replace(R.id.fragment_container,new AddSongLikeFragment());
+        ft.commit();
     }
 
-    private void showSongSelectionDialog(List<Song> songsToShow) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Chọn bài hát để thêm");
-
-        String[] songTitles = new String[songsToShow.size()];
-        boolean[] checkedItems = new boolean[songsToShow.size()];
-        for (int i = 0; i < songsToShow.size(); i++) {
-            songTitles[i] = songsToShow.get(i).getTitle();
-        }
-
-        builder.setMultiChoiceItems(songTitles, checkedItems, (dialog, which, isChecked) -> {
-            checkedItems[which] = isChecked;
-        });
-
-        builder.setPositiveButton("Thêm", (dialog, which) -> {
-            LikeDAO likeDAO = new LikeDAO();
-            User user = new UserSession(requireContext()).getUserSession();
-
-            for (int i = 0; i < checkedItems.length; i++) {
-                if (checkedItems[i]) {
-                    likeDAO.addSongToListLike(user.getId(), songsToShow.get(i).getSong_id());
-                }
-            }
-
-            // Cập nhật danh sách sau khi thêm bài hát
-            loadLikedSongs();
-        });
-
-        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
-
-        builder.show();
-    }
-
-    private void loadLikedSongs() {
-        LikeDAO likeDAO = new LikeDAO();
-        // Xóa danh sách cũ trước khi load lại
-        listSongLike.clear();
-        // Lấy danh sách bài hát yêu thích
-        List<Like> likedSongs = likeDAO.getListSongLikeByUserId(usersession.getUserSession().getId());
-        for (Like like : likedSongs) {
-            if (like.getSong() != null) {
-                listSongLike.add(like.getSong());
-            }
-        }
-        // Cập nhật dữ liệu cho Adapter
-        songAdapter.notifyDataSetChanged();
-    }
 }
 

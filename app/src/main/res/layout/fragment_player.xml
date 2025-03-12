@@ -2,10 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/relativeLayout"
+    android:id="@+id/playerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp">
+    android:background="#000"
+    android:paddingTop="20dp">
 
 
     <ImageView
@@ -23,12 +24,12 @@
         android:id="@+id/player_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="104dp"
+        android:layout_marginTop="140dp"
         android:text="Song Title"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.031"
+        app:layout_constraintHorizontal_bias="0.03"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/player_image" />
 
@@ -48,7 +49,7 @@
         android:id="@+id/seekBar"
         android:layout_width="match_parent"
         android:layout_height="12dp"
-        android:layout_marginTop="196dp"
+        android:layout_marginTop="236dp"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         android:progressDrawable="@drawable/custom_seekbar"
@@ -137,10 +138,11 @@
         app:layout_constraintStart_toEndOf="@+id/playerShuffle"
         app:layout_constraintTop_toBottomOf="@+id/seekBar" />
 
-    <ImageButton
+    <ImageView
         android:id="@+id/btnDown"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="16dp"
         android:background="@null"
         android:src="@drawable/ic_arrowdown"
         app:layout_constraintStart_toStartOf="parent"

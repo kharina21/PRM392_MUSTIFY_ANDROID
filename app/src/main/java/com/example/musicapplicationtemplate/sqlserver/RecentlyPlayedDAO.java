@@ -68,7 +68,7 @@ public class RecentlyPlayedDAO extends DBContext {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, u.getId());
             st.setInt(2, s.getSong_id());
-            st.executeQuery();
+            st.executeUpdate();
             return true;
         } catch (SQLException e) {
             e.printStackTrace();

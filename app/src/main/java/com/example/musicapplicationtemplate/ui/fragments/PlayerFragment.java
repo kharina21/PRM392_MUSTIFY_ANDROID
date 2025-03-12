@@ -2,6 +2,8 @@ package com.example.musicapplicationtemplate.ui.fragments;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -12,9 +14,13 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import androidx.palette.graphics.Palette;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
@@ -75,12 +81,21 @@ public class PlayerFragment extends Fragment {
 
         return view;
     }
+
     private void closePlayerFragment() {
         View view = getView();
         if (view != null) {
+            // Ẩn MiniPlayer và BottomNavigation trước khi chạy animation
+            MainActivity mainActivity = (MainActivity) getActivity();
+            if (mainActivity != null) {
+                mainActivity.toggleMiniPlayerVisibility(false);
+                mainActivity.toggleBottomNavigationVisibility(false);
+            }
+
+            // Tạo Animation trượt xuống
             ObjectAnimator slideDown = ObjectAnimator.ofFloat(view, "translationY", 0, view.getHeight());
             slideDown.setDuration(300);
-            slideDown.setInterpolator(new AccelerateInterpolator()); // Tăng tốc dần
+            slideDown.setInterpolator(new AccelerateInterpolator());
 
             slideDown.addListener(new Animator.AnimatorListener() {
                 @Override
@@ -88,15 +103,15 @@ public class PlayerFragment extends Fragment {
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    MainActivity mainActivity = (MainActivity) getActivity();
-                    if (mainActivity != null) {
-                        if (musicPlayerManager.getCurrentSong() != null) {
+                    // Khi animation kết thúc, xóa Fragment ngay lập tức
+                    view.postOnAnimation(() -> {
+                        if (mainActivity != null) {
+                            mainActivity.getSupportFragmentManager().popBackStack();
+                            // Hiển thị lại MiniPlayer & BottomNavigation sau khi Fragment bị loại bỏ
                             mainActivity.toggleMiniPlayerVisibility(true);
-                        } else {
-                            mainActivity.toggleMiniPlayerVisibility(false);
+                            mainActivity.toggleBottomNavigationVisibility(true);
                         }
-                        mainActivity.onBackPressed();
-                    }
+                    });
                 }
 
                 @Override
@@ -109,6 +124,7 @@ public class PlayerFragment extends Fragment {
             slideDown.start();
         }
     }
+
 
     private void setupUI() {
         Song song = musicPlayerManager.getCurrentSong();

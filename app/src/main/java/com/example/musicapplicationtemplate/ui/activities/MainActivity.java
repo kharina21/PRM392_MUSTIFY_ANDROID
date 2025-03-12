@@ -49,6 +49,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void toggleBottomNavigationVisibility(boolean isVisible) {
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        if (bottomNavigationView != null) {
+            float targetTranslationY = isVisible ? 0 : bottomNavigationView.getHeight();
+            bottomNavigationView.animate().translationY(targetTranslationY).setDuration(300).start();
+        }
+    }
+
     private final BottomNavigationView.OnNavigationItemSelectedListener navListener =
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override

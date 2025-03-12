@@ -54,10 +54,12 @@ public class MiniPlayerFragment extends Fragment {
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
         });
 
         view.setVisibility(View.GONE);
@@ -70,6 +72,7 @@ public class MiniPlayerFragment extends Fragment {
 
     public void updateMiniPlayerUI() {
         Song currentSong = musicPlayerManager.getCurrentSong();
+        musicPlayerManager.setOnSongChangedListener(() -> updateMiniPlayerUI());
         if (currentSong != null) {
             miniPlayerView.setVisibility(View.VISIBLE);
             tvMiniTitle.setText(currentSong.getTitle());
@@ -84,11 +87,13 @@ public class MiniPlayerFragment extends Fragment {
                 updateSeekBarRunnable = new Runnable() {
                     @Override
                     public void run() {
-                        if (musicPlayerManager.getCurrentSong() != null && musicPlayerManager.isPlaying()) {
-                            int currentPosition = musicPlayerManager.getCurrentPosition();
-                            seekBarMiniPlayer.setProgress(currentPosition);
+                        if (musicPlayerManager.getCurrentSong() != null) {
+                            if (musicPlayerManager.isPlaying()) {
+                                int currentPosition = musicPlayerManager.getCurrentPosition();
+                                seekBarMiniPlayer.setProgress(currentPosition);
+                                handler.postDelayed(this, 1000); // Chỉ cập nhật khi đang phát
+                            }
                         }
-                        handler.postDelayed(this, 1000);
                     }
                 };
                 handler.post(updateSeekBarRunnable);
@@ -96,7 +101,11 @@ public class MiniPlayerFragment extends Fragment {
 
             btnPlayPause.setOnClickListener(v -> togglePlayPause());
         } else {
-            miniPlayerView.setVisibility(View.GONE);
+            if (currentSong != null) {
+                miniPlayerView.setVisibility(View.VISIBLE);
+            } else {
+                miniPlayerView.setVisibility(View.INVISIBLE);
+            }
         }
     }
 
@@ -125,15 +134,13 @@ public class MiniPlayerFragment extends Fragment {
     private void openPlayerFragment() {
         PlayerFragment playerFragment = new PlayerFragment();
         getParentFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.slide_up, R.anim.slide_down)
-                .replace(R.id.fragment_container, playerFragment)
+                .setCustomAnimations(R.anim.slide_up, 0)
+                .add(R.id.fragment_container, playerFragment)
                 .addToBackStack(null) // Lưu trạng thái fragment trước đó
                 .commit();
-
         MainActivity mainActivity = (MainActivity) getActivity();
-        if (mainActivity != null) {
-            mainActivity.toggleMiniPlayerVisibility(false); // Ẩn MiniPlayerFragment khi mở PlayerFragment
-        }
+        mainActivity.toggleMiniPlayerVisibility(false); // Ẩn MiniPlayerFragment khi mở PlayerFragment
+        mainActivity.toggleBottomNavigationVisibility(false);
     }
 
     public void updateSeekBar(int progress) {

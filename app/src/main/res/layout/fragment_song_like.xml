@@ -4,9 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="16dp"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
     tools:context=".ui.fragments.SongLikeFragment">
 
     <!-- TODO: Update blank fragment layout -->
@@ -15,26 +12,28 @@
         android:id="@+id/tvSongLikeTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:text="Bài hát ưa thích"
         android:textColor="#fff"
-        android:textSize="24dp"
+        android:textSize="26dp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnSongLikeBack" />
 
     <LinearLayout
-        android:id="@+id/tvAddLikeSong"
+        android:id="@+id/btnAddSongToLikeList"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
         android:gravity="center_vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvSongLikeTitle">
 
-        <ImageButton
-            android:id="@+id/btnAddSongToLikeList"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+        <ImageView
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="#B7B1F2"
             android:src="@drawable/ic_add" />
 
         <TextView
@@ -47,19 +46,20 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvListSongLike"
         android:layout_width="match_parent"
-        android:layout_height="570dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/btnAddSongToLikeList"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvAddLikeSong" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <ImageButton
+    <ImageView
         android:id="@+id/btnSongLikeBack"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_arrowleft"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
         android:background="@null"
+        android:src="@drawable/ic_arrowleft"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
