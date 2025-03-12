@@ -2,11 +2,14 @@ package com.example.musicapplicationtemplate.ui.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.SeekBar;
 
 import com.example.musicapplicationtemplate.R;
@@ -26,14 +29,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         musicPlayerManager = MusicPlayerManager.getInstance();
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
 
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.miniPlayerFragment, new MiniPlayerFragment())
-                .commit();
+        MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) getSupportFragmentManager().findFragmentByTag("MINI_PLAYER");
+
+        if (miniPlayerFragment == null) {
+            miniPlayerFragment = new MiniPlayerFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.miniPlayerFragment, miniPlayerFragment, "MINI_PLAYER")
+                    .commit();
+        }
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -52,8 +61,10 @@ public class MainActivity extends AppCompatActivity {
     public void toggleBottomNavigationVisibility(boolean isVisible) {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         if (bottomNavigationView != null) {
-            float targetTranslationY = isVisible ? 0 : bottomNavigationView.getHeight();
-            bottomNavigationView.animate().translationY(targetTranslationY).setDuration(300).start();
+            bottomNavigationView.post(() -> {
+                float targetTranslationY = isVisible ? 0 : bottomNavigationView.getHeight();
+                bottomNavigationView.animate().translationY(targetTranslationY).setDuration(300).start();
+            });
         }
     }
 

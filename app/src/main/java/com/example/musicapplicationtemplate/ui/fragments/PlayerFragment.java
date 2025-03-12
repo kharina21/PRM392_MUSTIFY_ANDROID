@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -16,6 +17,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+
 import androidx.palette.graphics.Palette;
 
 import androidx.annotation.NonNull;
@@ -24,6 +26,9 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.musicapplicationtemplate.ui.activities.MainActivity;
 import com.example.musicapplicationtemplate.utils.MusicPlayerManager;
 import com.example.musicapplicationtemplate.R;
@@ -82,6 +87,36 @@ public class PlayerFragment extends Fragment {
         return view;
     }
 
+    private void setBackgroundFromAlbumArt(Bitmap bitmap) {
+        if (bitmap != null) {
+            Palette.from(bitmap).generate(palette -> {
+                if (palette != null) {
+                    // Ưu tiên màu tối, nếu không có thì lấy màu trung tính
+                    int darkMutedColor = palette.getDarkMutedColor(0);
+                    int mutedColor = palette.getMutedColor(0);
+                    int darkVibrantColor = palette.getDarkVibrantColor(0);
+                    int fallbackColor = getResources().getColor(android.R.color.black); // Màu dự phòng
+
+                    int backgroundColor;
+                    if (darkMutedColor != 0) {
+                        backgroundColor = darkMutedColor;
+                    } else if (mutedColor != 0) {
+                        backgroundColor = mutedColor;
+                    } else if (darkVibrantColor != 0) {
+                        backgroundColor = darkVibrantColor;
+                    } else {
+                        backgroundColor = fallbackColor;
+                    }
+
+                    ConstraintLayout playerLayout = getView().findViewById(R.id.playerLayout);
+                    if (playerLayout != null) {
+                        playerLayout.setBackgroundColor(backgroundColor);
+                    }
+                }
+            });
+        }
+    }
+
     private void closePlayerFragment() {
         View view = getView();
         if (view != null) {
@@ -99,7 +134,8 @@ public class PlayerFragment extends Fragment {
 
             slideDown.addListener(new Animator.AnimatorListener() {
                 @Override
-                public void onAnimationStart(Animator animation) {}
+                public void onAnimationStart(Animator animation) {
+                }
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
@@ -115,10 +151,12 @@ public class PlayerFragment extends Fragment {
                 }
 
                 @Override
-                public void onAnimationCancel(Animator animation) {}
+                public void onAnimationCancel(Animator animation) {
+                }
 
                 @Override
-                public void onAnimationRepeat(Animator animation) {}
+                public void onAnimationRepeat(Animator animation) {
+                }
             });
 
             slideDown.start();
@@ -131,7 +169,20 @@ public class PlayerFragment extends Fragment {
         if (song != null) {
             playerTitle.setText(song.getTitle());
             playerArtist.setText(song.getArtist());
-            Glide.with(this).load("file:///android_asset/" + song.getImage()).dontAnimate().into(playerImage);
+            Glide.with(this)
+                    .asBitmap()
+                    .load("file:///android_asset/" + song.getImage())
+                    .into(new CustomTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            playerImage.setImageBitmap(resource);
+                            setBackgroundFromAlbumArt(resource); // Cập nhật màu nền dựa vào ảnh
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                        }
+                    });
         }
     }
 
@@ -158,10 +209,12 @@ public class PlayerFragment extends Fragment {
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
         });
     }
 
@@ -182,7 +235,7 @@ public class PlayerFragment extends Fragment {
 
     private void toggleRepeat() {
         repeatMode = (repeatMode + 1) % 3;
-        Log.d("repeatMode: ", "repeat mode: "+repeatMode);
+        Log.d("repeatMode: ", "repeat mode: " + repeatMode);
         switch (repeatMode) {
             case 0:
                 playerRepeat.setImageResource(R.drawable.repeat_off);

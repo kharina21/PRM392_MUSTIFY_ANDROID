@@ -1,5 +1,7 @@
 package com.example.musicapplicationtemplate.ui.fragments;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -11,9 +13,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.palette.graphics.Palette;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.musicapplicationtemplate.R;
 import com.example.musicapplicationtemplate.ui.activities.MainActivity;
 import com.example.musicapplicationtemplate.utils.MusicPlayerManager;
@@ -29,6 +36,7 @@ public class MiniPlayerFragment extends Fragment {
     private Handler handler = new Handler();
     private Runnable updateSeekBarRunnable;
     private View miniPlayerView;
+    private CardView miniPlayer;
 
     @Nullable
     @Override
@@ -42,6 +50,7 @@ public class MiniPlayerFragment extends Fragment {
         tvMiniTitle = view.findViewById(R.id.tvMiniTitle);
         tvMiniArtist = view.findViewById(R.id.tvMiniArtist);
         seekBarMiniPlayer = view.findViewById(R.id.seekBarMiniPlayer);
+        miniPlayer = view.findViewById(R.id.miniPlayer);
 
         musicPlayerManager = MusicPlayerManager.getInstance();
 
@@ -77,7 +86,20 @@ public class MiniPlayerFragment extends Fragment {
             miniPlayerView.setVisibility(View.VISIBLE);
             tvMiniTitle.setText(currentSong.getTitle());
             tvMiniArtist.setText(currentSong.getArtist());
-            Glide.with(this).load("file:///android_asset/" + currentSong.getImage()).into(imgMiniPlayer);
+            Glide.with(this)
+                    .asBitmap()
+                    .load("file:///android_asset/" + currentSong.getImage())
+                    .into(new CustomTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            imgMiniPlayer.setImageBitmap(resource);
+                            setBackgroundFromAlbumArt(resource); // Cập nhật màu nền dựa vào ảnh
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                        }
+                    });
 
             syncPlayPauseButton();
 
@@ -106,6 +128,35 @@ public class MiniPlayerFragment extends Fragment {
             } else {
                 miniPlayerView.setVisibility(View.INVISIBLE);
             }
+        }
+    }
+
+    private void setBackgroundFromAlbumArt(Bitmap bitmap) {
+        if (bitmap != null) {
+            Palette.from(bitmap).generate(palette -> {
+                if (palette != null) {
+                    // Ưu tiên màu tối, nếu không có thì lấy màu trung tính
+                    int darkMutedColor = palette.getDarkMutedColor(0);
+                    int mutedColor = palette.getMutedColor(0);
+                    int darkVibrantColor = palette.getDarkVibrantColor(0);
+                    int fallbackColor = getResources().getColor(android.R.color.black); // Màu dự phòng
+
+                    int backgroundColor;
+                    if (darkMutedColor != 0) {
+                        backgroundColor = darkMutedColor;
+                    } else if (mutedColor != 0) {
+                        backgroundColor = mutedColor;
+                    } else if (darkVibrantColor != 0) {
+                        backgroundColor = darkVibrantColor;
+                    } else {
+                        backgroundColor = fallbackColor;
+                    }
+
+                    if (miniPlayer != null) {
+                        miniPlayer.setCardBackgroundColor(backgroundColor);
+                    }
+                }
+            });
         }
     }
 
