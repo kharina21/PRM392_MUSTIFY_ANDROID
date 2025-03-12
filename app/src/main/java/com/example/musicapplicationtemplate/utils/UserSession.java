@@ -7,7 +7,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import model.User;
+import com.example.musicapplicationtemplate.model.User;
 
 public class UserSession {
     private final SharedPreferences sharedPreferences;

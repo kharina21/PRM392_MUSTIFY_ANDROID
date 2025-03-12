@@ -10,9 +10,9 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import Utils.Utils;
-import model.User;
-import sqlserver.UserDAO;
+import com.example.musicapplicationtemplate.utils.Utils;
+import com.example.musicapplicationtemplate.model.User;
+import com.example.musicapplicationtemplate.sqlserver.UserDAO;
 import android.util.Log;
 
 import com.example.musicapplicationtemplate.R;

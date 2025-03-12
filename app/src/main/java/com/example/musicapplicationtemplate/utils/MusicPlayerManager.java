@@ -6,7 +6,7 @@ import android.os.Handler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import model.Song;
+import com.example.musicapplicationtemplate.model.Song;
 
 public class MusicPlayerManager {
     private static MusicPlayerManager instance;

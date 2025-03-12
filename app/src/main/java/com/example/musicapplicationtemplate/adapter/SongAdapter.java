@@ -15,14 +15,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.musicapplicationtemplate.R;
+import com.example.musicapplicationtemplate.model.Like;
+import com.example.musicapplicationtemplate.sqlserver.LikeDAO;
 import com.example.musicapplicationtemplate.utils.UserSession;
 
 import java.util.List;
 
-import model.RecentlyPlayed;
-import model.Song;
-import model.User;
-import sqlserver.RecentlyPlayedDAO;
+import com.example.musicapplicationtemplate.model.RecentlyPlayed;
+import com.example.musicapplicationtemplate.model.Song;
+import com.example.musicapplicationtemplate.model.User;
+import com.example.musicapplicationtemplate.sqlserver.RecentlyPlayedDAO;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
     Context context;
@@ -96,6 +98,14 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 Toast.makeText(context, "Added to Playlist: " + song.getTitle(), Toast.LENGTH_SHORT).show();
                 return true;
             } else if (item.getItemId() == R.id.option_delete) {
+                LikeDAO ldb = new LikeDAO();
+                ldb.removeSongInListLike(usersession.getUserSession().getId(),song.getSong_id());
+                //update rv
+                int position = songs.indexOf(song);
+                if (position != -1) {
+                    songs.remove(position);
+                    notifyItemRemoved(position); // Cập nhật RecyclerView
+                }
                 Toast.makeText(context, "Deleted: " + song.getTitle(), Toast.LENGTH_SHORT).show();
                 return true;
             } else {

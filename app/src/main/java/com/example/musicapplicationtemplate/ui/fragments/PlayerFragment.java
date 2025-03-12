@@ -9,8 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -24,7 +22,7 @@ import com.example.musicapplicationtemplate.ui.activities.MainActivity;
 import com.example.musicapplicationtemplate.utils.MusicPlayerManager;
 import com.example.musicapplicationtemplate.R;
 
-import model.Song;
+import com.example.musicapplicationtemplate.model.Song;
 
 public class PlayerFragment extends Fragment {
     private ImageView playerImage, playerPlayPause, playerPrevious, playerNext, playerShuffle, playerRepeat;

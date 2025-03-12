@@ -27,12 +27,12 @@ import java.util.List;
 import com.example.musicapplicationtemplate.adapter.SongAdapter;
 import com.example.musicapplicationtemplate.utils.UserSession;
 
-import model.Like;
-import model.RecentlyPlayed;
-import model.Song;
-import sqlserver.LikeDAO;
-import sqlserver.RecentlyPlayedDAO;
-import sqlserver.SongDAO;
+import com.example.musicapplicationtemplate.model.Like;
+import com.example.musicapplicationtemplate.model.RecentlyPlayed;
+import com.example.musicapplicationtemplate.model.Song;
+import com.example.musicapplicationtemplate.sqlserver.LikeDAO;
+import com.example.musicapplicationtemplate.sqlserver.RecentlyPlayedDAO;
+import com.example.musicapplicationtemplate.sqlserver.SongDAO;
 
 public class HomeFragment extends Fragment implements MusicPlayerManager.OnPlaybackChangeListener {
 
@@ -94,17 +94,7 @@ public class HomeFragment extends Fragment implements MusicPlayerManager.OnPlayb
     }
 
     private void toggleSongLike() {
-        LikeDAO ldb = new LikeDAO();
-        List<Like> listLike = ldb.getListSongLikeByUserId(usersession.getUserSession().getId());
-        List<Song> listSong = new ArrayList<>();
-        for(Like l : listLike){
-            listSong.add(l.getSong());
-        }
-        Log.d("Button Song Like", "Button Song Like");
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("list_song_like", (Serializable) listSong);
-        SongLikeFragment SongLikeFragment = new SongLikeFragment();
-        SongLikeFragment.setArguments(bundle);
+
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
         //animation
         transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);

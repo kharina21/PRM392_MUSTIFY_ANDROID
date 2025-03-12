@@ -18,7 +18,7 @@ import com.example.musicapplicationtemplate.R;
 import com.example.musicapplicationtemplate.ui.activities.MainActivity;
 import com.example.musicapplicationtemplate.utils.MusicPlayerManager;
 
-import model.Song;
+import com.example.musicapplicationtemplate.model.Song;
 
 public class MiniPlayerFragment extends Fragment {
 

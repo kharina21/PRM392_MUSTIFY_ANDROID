@@ -16,8 +16,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.musicapplicationtemplate.R;
 
-import Utils.Utils;
-import model.User;
+import com.example.musicapplicationtemplate.utils.Utils;
+import com.example.musicapplicationtemplate.model.User;
 
 public class GetPasswordActivity extends AppCompatActivity {
     Utils u = new Utils();

@@ -16,8 +16,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.musicapplicationtemplate.R;
 
-import model.User;
-import sqlserver.UserDAO;
+import com.example.musicapplicationtemplate.model.User;
+import com.example.musicapplicationtemplate.sqlserver.UserDAO;
 
 public class ForgotAccountActivity extends AppCompatActivity {
     EditText edtForgotUserEmail;

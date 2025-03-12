@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicapplicationtemplate.R;
 
-import sqlserver.UserDAO;
+import com.example.musicapplicationtemplate.sqlserver.UserDAO;
 
 public class EnterCodeActivity extends AppCompatActivity {
 

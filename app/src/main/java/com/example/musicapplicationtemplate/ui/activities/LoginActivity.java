@@ -13,10 +13,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicapplicationtemplate.R;
 
-import Utils.Utils;
-import model.User;
-import sqlserver.UserDAO;
-import sqlserver.DBContext;
+import com.example.musicapplicationtemplate.utils.Utils;
+import com.example.musicapplicationtemplate.model.User;
+import com.example.musicapplicationtemplate.sqlserver.UserDAO;
+import com.example.musicapplicationtemplate.sqlserver.DBContext;
 import com.example.musicapplicationtemplate.utils.UserSession;
 
 import android.util.Log;
