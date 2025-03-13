@@ -3,9 +3,12 @@ package com.example.musicapplicationtemplate.utils;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Handler;
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
 import com.example.musicapplicationtemplate.model.Song;
 
 public class MusicPlayerManager {
@@ -17,17 +20,12 @@ public class MusicPlayerManager {
     private boolean isPlaying;
     private boolean isShuffle;
     private int repeatMode;
+    private final List<OnUIUpdateListener> uiUpdateListeners = new ArrayList<>();
     private OnPlaybackChangeListener playbackChangeListener;
     private OnSeekBarChangeListener seekBarChangeListener;
-    private OnUIUpdateListener uiUpdateListener;
-    private Handler seekBarHandler = new Handler();
-    public interface OnSongChangedListener {
-        void onSongChanged();
-    }
     private OnSongChangedListener songChangedListener;
-    public void setOnSongChangedListener(OnSongChangedListener listener) {
-        this.songChangedListener = listener;
-    }
+    private Handler seekBarHandler = new Handler();
+
     private MusicPlayerManager() {
         mediaPlayer = new MediaPlayer();
         playlist = new ArrayList<>();
@@ -45,12 +43,15 @@ public class MusicPlayerManager {
     }
 
     public void setPlaylist(List<Song> playlist, int index) {
+        if (playlist == null || playlist.isEmpty()) {
+            Log.e("MusicPlayerManager", "setPlaylist: Danh sách bài hát rỗng!");
+            return;
+        }
+
         this.playlist = playlist;
         this.currentIndex = index;
-        this.currentSong = playlist.isEmpty() ? null : playlist.get(index);
-        if (uiUpdateListener != null) {
-            uiUpdateListener.onUIUpdate(currentSong);
-        }
+        this.currentSong = playlist.get(index);
+        notifyUIUpdate(currentSong);
     }
 
     public void playSong(Context context, Song song) {
@@ -64,21 +65,30 @@ public class MusicPlayerManager {
                     "raw", context.getPackageName());
             if (resId != 0) {
                 mediaPlayer = MediaPlayer.create(context, resId);
-                mediaPlayer.setOnCompletionListener(mp -> {
-                    if (playbackChangeListener != null) {
-                        playbackChangeListener.onSongComplete();
-                    }
-                });
+                mediaPlayer.setOnCompletionListener(mp -> handleSongCompletion(context));
                 mediaPlayer.start();
                 currentSong = song;
                 isPlaying = true;
-                if (uiUpdateListener != null) {
-                    uiUpdateListener.onUIUpdate(currentSong);
-                }
+                notifyUIUpdate(currentSong);
                 startSeekBarUpdate();
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void handleSongCompletion(Context context) {
+        if (repeatMode == 2) { // Repeat One
+            playSong(context, playlist.get(currentIndex));
+        } else if (isShuffle) { // Shuffle mode
+            currentIndex = new Random().nextInt(playlist.size());
+            playSong(context, playlist.get(currentIndex));
+        } else { // Next song
+            playNext(context);
+        }
+
+        if (songChangedListener != null) {
+            songChangedListener.onSongChanged();
         }
     }
 
@@ -104,6 +114,7 @@ public class MusicPlayerManager {
                 isPlaying = true;
                 startSeekBarUpdate();
             }
+            notifyUIUpdate(currentSong);
         }
     }
 
@@ -128,23 +139,45 @@ public class MusicPlayerManager {
     public int getDuration() {
         return (mediaPlayer != null && currentSong != null) ? mediaPlayer.getDuration() : 0;
     }
-    public void toggleShuffle() {
-        isShuffle = !isShuffle;
+
+    public void setShuffle(boolean shuffle) {
+        this.isShuffle = shuffle;
     }
+
+    public void setRepeatMode(int mode) {
+        this.repeatMode = mode;
+    }
+
     public void playNext(Context context) {
-        // Chuyển bài hát tiếp theo
-        if (songChangedListener != null) {
-            songChangedListener.onSongChanged();
+        if (playlist == null || playlist.isEmpty()) {
+            Log.e("MusicPlayerManager", "Danh sách bài hát trống! Không thể phát bài tiếp theo.");
+            return;
         }
+
+        if (isShuffle) {
+            currentIndex = new Random().nextInt(playlist.size());
+        } else {
+            currentIndex = (currentIndex + 1) % playlist.size();
+        }
+
+        playSong(context, playlist.get(currentIndex));
+        notifyUIUpdate(currentSong);
     }
 
     public void playPrevious(Context context) {
+        if (playlist == null || playlist.isEmpty()) {
+            Log.e("MusicPlayerManager", "Danh sách bài hát trống! Không thể phát bài trước đó.");
+            return;
+        }
+
         if (isShuffle) {
             currentIndex = new Random().nextInt(playlist.size());
         } else {
             currentIndex = (currentIndex - 1 + playlist.size()) % playlist.size();
         }
+
         playSong(context, playlist.get(currentIndex));
+        notifyUIUpdate(currentSong);
     }
 
     public void setOnPlaybackChangeListener(OnPlaybackChangeListener listener) {
@@ -155,16 +188,31 @@ public class MusicPlayerManager {
         this.seekBarChangeListener = listener;
     }
 
-    public void setOnUIUpdateListener(OnUIUpdateListener listener) {
-        this.uiUpdateListener = listener;
+    public void setOnSongChangedListener(OnSongChangedListener listener) {
+        this.songChangedListener = listener;
+    }
+
+    // ✅ Sử dụng danh sách để hỗ trợ nhiều Fragment cập nhật UI
+    public void addOnUIUpdateListener(OnUIUpdateListener listener) {
+        if (listener != null && !uiUpdateListeners.contains(listener)) {
+            uiUpdateListeners.add(listener);
+        }
+    }
+
+    public void removeOnUIUpdateListener(OnUIUpdateListener listener) {
+        uiUpdateListeners.remove(listener);
+    }
+
+    private void notifyUIUpdate(Song song) {
+        for (OnUIUpdateListener listener : uiUpdateListeners) {
+            listener.onUIUpdate(song);
+        }
     }
 
     public interface OnPlaybackChangeListener {
         void onSongComplete();
     }
-    public void toggleRepeat() {
-        repeatMode = (repeatMode + 1) % 3;
-    }
+
     public interface OnSeekBarChangeListener {
         void onSeekBarUpdate(int progress);
     }
@@ -172,4 +220,10 @@ public class MusicPlayerManager {
     public interface OnUIUpdateListener {
         void onUIUpdate(Song song);
     }
+
+    public interface OnSongChangedListener {
+        void onSongChanged();
+    }
+
+
 }

@@ -1,8 +1,10 @@
 package com.example.musicapplicationtemplate.ui.fragments;
 
 import android.app.AlertDialog;
+import android.graphics.Rect;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -59,6 +61,7 @@ public class SongLikeFragment extends Fragment {
         musicPlayerManager = MusicPlayerManager.getInstance();
         usersession = new UserSession(requireContext());
         listSongLike = new ArrayList<>();
+
         LikeDAO ldb = new LikeDAO();
         List<Like> listLike = ldb.getListSongLikeByUserId(usersession.getUserSession().getId());
         for(Like l : listLike){
@@ -67,6 +70,7 @@ public class SongLikeFragment extends Fragment {
                 listSongLike.add(l.getSong());
             }
         }
+        Log.d("ListSongLike","number of song like: "+listSongLike.size());
 
     }
 
@@ -80,6 +84,29 @@ public class SongLikeFragment extends Fragment {
         btnSongLikeBack = view.findViewById(R.id.btnSongLikeBack);
         rvListSongLike = view.findViewById(R.id.rvListSongLike);
         btnSongLikeBack.setOnClickListener(v->toggleSongLikeBack());
+
+
+        // Lắng nghe kết quả từ AddSongLikeFragment
+        getParentFragmentManager().setFragmentResultListener("updateSongList", this, (requestKey, result) -> {
+            if (result.getBoolean("isUpdated", false)) {
+                refreshSongList(); // Cập nhật danh sách bài hát
+            }
+        });
+
+        //tao margin cho item cuoi
+        rvListSongLike.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
+                                       @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                int position = parent.getChildAdapterPosition(view);
+                int itemCount = state.getItemCount();
+
+                // Nếu là item cuối cùng, thêm margin bottom
+                if (position == itemCount - 1) {
+                    outRect.bottom = 500; // Điều chỉnh khoảng trống tùy theo MiniPlayer
+                }
+            }
+        });
         if (listSongLike != null) {
             songAdapter = new SongAdapter(getContext(),listSongLike,R.layout.item_song_1,this::playSong);
             rvListSongLike.setAdapter(songAdapter);
@@ -88,6 +115,22 @@ public class SongLikeFragment extends Fragment {
         return view;
     }
 
+    private void refreshSongList() {
+        listSongLike.clear();
+        listSongLike.addAll(getLikedSongs());
+        songAdapter.notifyDataSetChanged();
+    }
+    private List<Song> getLikedSongs() {
+        User user = new UserSession(requireContext()).getUserSession();
+        LikeDAO likeDAO = new LikeDAO();
+        List<Like> likedList = likeDAO.getListSongLikeByUserId(user.getId());
+
+        List<Song> likedSongs = new ArrayList<>();
+        for (Like like : likedList) {
+            likedSongs.add(like.getSong());
+        }
+        return likedSongs;
+    }
     public void toggleSongLikeBack(){
         FragmentTransaction ft = getParentFragmentManager().beginTransaction();
         ft.setCustomAnimations(R.anim.slide_in_left,R.anim.slide_out_right);
@@ -96,6 +139,22 @@ public class SongLikeFragment extends Fragment {
         ft.commit();
     }
     private void playSong(Song song) {
+        List<Like> listLike = new LikeDAO().getListSongLikeByUserId(usersession.getUserSession().getId());
+        List<Song> listLikedSong = new ArrayList<>(); // Hàm này lấy danh sách tất cả bài hát
+        for(Like like:listLike){
+            listLikedSong.add(like.getSong());
+        }
+        int index = -1;
+        for (int i = 0; i < listLikedSong.size(); i++) {
+            if (listLikedSong.get(i).getSong_id() == song.getSong_id() ) {
+                index = i;
+                break;
+            }
+        }
+        Log.d("list all song","Number of song and index of song: "+listLikedSong.size()+" - index: "+index);
+        if (index != -1) {
+            musicPlayerManager.setPlaylist(listLikedSong, index);
+        }
         musicPlayerManager.playSong(getContext(), song);
         // Thêm bài hát vào Recently Played
         RecentlyPlayedDAO rpd = new RecentlyPlayedDAO();
@@ -112,10 +171,11 @@ public class SongLikeFragment extends Fragment {
         }
     }
     private void showAddSongLikeFragment(){
-        FragmentTransaction ft = getParentFragmentManager().beginTransaction();
-        ft.setCustomAnimations(R.anim.slide_up,R.anim.slide_down);
-        ft.replace(R.id.fragment_container,new AddSongLikeFragment());
-        ft.commit();
+        getParentFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.slide_up, 0)
+                .add(R.id.fragment_container, new AddSongLikeFragment())
+                .addToBackStack(null) // Lưu trạng thái fragment trước đó
+                .commit();
     }
 
 }

@@ -17,6 +17,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.widget.Toast;
 
 import androidx.palette.graphics.Palette;
 
@@ -29,21 +30,27 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.example.musicapplicationtemplate.model.Like;
+import com.example.musicapplicationtemplate.sqlserver.LikeDAO;
 import com.example.musicapplicationtemplate.ui.activities.MainActivity;
 import com.example.musicapplicationtemplate.utils.MusicPlayerManager;
 import com.example.musicapplicationtemplate.R;
 
 import com.example.musicapplicationtemplate.model.Song;
+import com.example.musicapplicationtemplate.utils.UserSession;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerFragment extends Fragment {
-    private ImageView playerImage, playerPlayPause, playerPrevious, playerNext, playerShuffle, playerRepeat;
+    private ImageView playerImage, playerPlayPause, playerPrevious, playerNext, playerShuffle, playerRepeat, ivPlayerAddSongLike;
     private TextView playerTitle, playerArtist, elapsedTime, remainingTime;
     private SeekBar seekBar;
     private Handler handler = new Handler();
     private MusicPlayerManager musicPlayerManager;
     private boolean isShuffle;
+    private boolean isSongLiked = false;
     private ImageView btnDown;
-    private MiniPlayerFragment miniPlayerFragment;
     private int repeatMode;
 
     @Nullable
@@ -55,36 +62,50 @@ public class PlayerFragment extends Fragment {
         playerTitle = view.findViewById(R.id.player_title);
         playerArtist = view.findViewById(R.id.player_artist);
         playerPlayPause = view.findViewById(R.id.playerPlayPause);
+        playerPlayPause.setOnClickListener(v -> togglePlayPause());
         playerPrevious = view.findViewById(R.id.playerPrevious);
         playerNext = view.findViewById(R.id.playerNext);
         playerShuffle = view.findViewById(R.id.playerShuffle);
         playerRepeat = view.findViewById(R.id.playerRepeat);
         seekBar = view.findViewById(R.id.seekBar);
+        ivPlayerAddSongLike = view.findViewById(R.id.ivPlayerAddSongLike);
         elapsedTime = view.findViewById(R.id.elapsedTime);
         remainingTime = view.findViewById(R.id.remainingTime);
         btnDown = view.findViewById(R.id.btnDown);
-        miniPlayerFragment = new MiniPlayerFragment();
-
         btnDown.setOnClickListener(v -> closePlayerFragment());
         musicPlayerManager = MusicPlayerManager.getInstance();
+        musicPlayerManager.addOnUIUpdateListener(song -> setupUI());
+
+        //check xem co trong list ua thich cchua
+        checkIsLikeSong();
+        ivPlayerAddSongLike.setOnClickListener(v->toggleAddAndRemoveSong());
 
         setupUI();
         setupSeekBar();
         updatePlayPauseButton();
 
-        playerPlayPause.setOnClickListener(v -> togglePlayPause());
-        playerPrevious.setOnClickListener(v -> {
-            musicPlayerManager.playPrevious(getContext());
-            setupUI();
-        });
         playerNext.setOnClickListener(v -> {
             musicPlayerManager.playNext(getContext());
+            updatePlayPauseButton(); // Cập nhật trạng thái phát/tạm dừng
+            setupUI(); // Cập nhật giao diện
+        });
+
+        playerPrevious.setOnClickListener(v -> {
+            musicPlayerManager.playPrevious(getContext());
+            updatePlayPauseButton();
             setupUI();
         });
         playerShuffle.setOnClickListener(v -> toggleShuffle());
         playerRepeat.setOnClickListener(v -> toggleRepeat());
 
         return view;
+    }
+
+    private void toggleShuffle() {
+        isShuffle = !isShuffle;
+        musicPlayerManager.setShuffle(isShuffle);
+        Log.d("PlayerFragment", "Shuffle mode: " + isShuffle); // Kiểm tra trạng thái
+        playerShuffle.setImageResource(isShuffle ? R.drawable.shuffle : R.drawable.shuffle_off);
     }
 
     private void setBackgroundFromAlbumArt(Bitmap bitmap) {
@@ -115,6 +136,40 @@ public class PlayerFragment extends Fragment {
                 }
             });
         }
+    }
+
+    private void checkIsLikeSong() {
+        Song song  = musicPlayerManager.getCurrentSong();
+        List<Like> listLike = new LikeDAO().getListSongLikeByUserId(new UserSession(requireContext()).getUserSession().getId());
+        for(Like like : listLike) {
+            if(like.getSong().getSong_id() == song.getSong_id()){
+                ivPlayerAddSongLike.setImageResource(R.drawable.ic_checkcircle);
+                isSongLiked = true;
+                return;
+            }
+        }
+        ivPlayerAddSongLike.setImageResource(R.drawable.ic_addcircle);
+        isSongLiked = false;
+    }
+
+    private void toggleAddAndRemoveSong(){
+        Song song = musicPlayerManager.getCurrentSong();
+        LikeDAO ldb = new LikeDAO();
+        if(isSongLiked){
+            ivPlayerAddSongLike.setImageResource(R.drawable.ic_addcircle);
+            ldb.removeSongInListLike(new UserSession(requireContext()).getUserSession().getId(),song.getSong_id());
+            Toast.makeText(requireContext(), "Đã xóa \""+song.getTitle()+"\" khỏi danh sách ưa thích", Toast.LENGTH_SHORT).show();
+            isSongLiked = false;
+        }else{
+            ivPlayerAddSongLike.setImageResource(R.drawable.ic_checkcircle);
+            ldb.addSongToListLike(new UserSession(requireContext()).getUserSession().getId(),song.getSong_id());
+            Toast.makeText(requireContext(), "Đã thêm \""+song.getTitle()+"\" vào danh sách ưa thích", Toast.LENGTH_SHORT).show();
+            isSongLiked = true;
+        }
+        // Gửi thông báo cập nhật
+        Bundle result = new Bundle();
+        result.putBoolean("isUpdated", true);
+        getParentFragmentManager().setFragmentResult("updateSongList", result);
     }
 
     private void closePlayerFragment() {
@@ -166,23 +221,26 @@ public class PlayerFragment extends Fragment {
 
     private void setupUI() {
         Song song = musicPlayerManager.getCurrentSong();
-        if (song != null) {
-            playerTitle.setText(song.getTitle());
-            playerArtist.setText(song.getArtist());
-            Glide.with(this)
-                    .asBitmap()
-                    .load("file:///android_asset/" + song.getImage())
-                    .into(new CustomTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                            playerImage.setImageBitmap(resource);
-                            setBackgroundFromAlbumArt(resource); // Cập nhật màu nền dựa vào ảnh
-                        }
+        musicPlayerManager.setOnSongChangedListener(() -> setupUI());
+        if (isAdded() && getActivity() != null) {
+            if (song != null) {
+                playerTitle.setText(song.getTitle());
+                playerArtist.setText(song.getArtist());
+                Glide.with(this)
+                        .asBitmap()
+                        .load("file:///android_asset/" + song.getImage())
+                        .into(new CustomTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                playerImage.setImageBitmap(resource);
+                                setBackgroundFromAlbumArt(resource); // Cập nhật màu nền dựa vào ảnh
+                            }
 
-                        @Override
-                        public void onLoadCleared(@Nullable Drawable placeholder) {
-                        }
-                    });
+                            @Override
+                            public void onLoadCleared(@Nullable Drawable placeholder) {
+                            }
+                        });
+            }
         }
     }
 
@@ -227,15 +285,12 @@ public class PlayerFragment extends Fragment {
         updatePlayPauseButton();
     }
 
-    private void toggleShuffle() {
-        isShuffle = !isShuffle;
-        musicPlayerManager.toggleShuffle();
-        playerShuffle.setImageResource(isShuffle ? R.drawable.shuffle : R.drawable.shuffle_off);
-    }
 
     private void toggleRepeat() {
         repeatMode = (repeatMode + 1) % 3;
-        Log.d("repeatMode: ", "repeat mode: " + repeatMode);
+        musicPlayerManager.setRepeatMode(repeatMode);
+        Log.d("PlayerFragment", "Repeat mode: " + repeatMode); // Kiểm tra trạng thái
+
         switch (repeatMode) {
             case 0:
                 playerRepeat.setImageResource(R.drawable.repeat_off);
@@ -249,6 +304,7 @@ public class PlayerFragment extends Fragment {
         }
     }
 
+
     private String formatTime(int millis) {
         int minutes = (millis / 1000) / 60;
         int seconds = (millis / 1000) % 60;
@@ -258,6 +314,6 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        handler.removeCallbacksAndMessages(null);
+        musicPlayerManager.removeOnUIUpdateListener(song -> setupUI());
     }
 }

@@ -7,6 +7,7 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
                         // Chỉ hiển thị MiniPlayerFragment nếu có bài hát đang phát
                         if (musicPlayerManager.getCurrentSong() != null && musicPlayerManager.isPlaying() ) {
+                            Log.d("GetCurrentSong","GetCurrentSong: "+musicPlayerManager.getCurrentSong());
                             toggleMiniPlayerVisibility(true);
                         } else {
                             toggleMiniPlayerVisibility(false);

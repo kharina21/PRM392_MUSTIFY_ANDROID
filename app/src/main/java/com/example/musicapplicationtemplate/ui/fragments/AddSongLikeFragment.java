@@ -1,9 +1,12 @@
 package com.example.musicapplicationtemplate.ui.fragments;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -23,6 +26,7 @@ import com.example.musicapplicationtemplate.model.Song;
 import com.example.musicapplicationtemplate.model.User;
 import com.example.musicapplicationtemplate.sqlserver.LikeDAO;
 import com.example.musicapplicationtemplate.sqlserver.SongDAO;
+import com.example.musicapplicationtemplate.ui.activities.MainActivity;
 import com.example.musicapplicationtemplate.utils.UserSession;
 
 import java.util.ArrayList;
@@ -98,19 +102,46 @@ public class AddSongLikeFragment extends Fragment {
                 ldb.addSongToListLike(new UserSession(requireContext()).getUserSession().getId(), s.getSong_id());
             }
             Toast.makeText(requireContext(), "Đã thêm " + selectedSongs.size() + " bài hát vào danh sách yêu thích", Toast.LENGTH_SHORT).show();
-            FragmentTransaction ft = getParentFragmentManager().beginTransaction();
-            ft.setCustomAnimations(R.anim.slide_down, R.anim.slide_up);
-            ft.replace(R.id.fragment_container, new SongLikeFragment());
-            ft.addToBackStack(null);
-            ft.commit();
+            // Gửi thông báo cập nhật
+            Bundle result = new Bundle();
+            result.putBoolean("isUpdated", true);
+            getParentFragmentManager().setFragmentResult("updateSongList", result);
+
+            toggleAddSongLikeClose();
         }
     }
 
     private void toggleAddSongLikeClose() {
-        FragmentTransaction ft = getParentFragmentManager().beginTransaction();
-        ft.setCustomAnimations(R.anim.slide_down, R.anim.slide_up);
-        ft.replace(R.id.fragment_container, new SongLikeFragment());
-        ft.addToBackStack(null);
-        ft.commit();
+        View view = getView();
+        if (view != null) {
+            MainActivity mainActivity = (MainActivity) getActivity();
+            // Tạo Animation trượt xuống
+            ObjectAnimator slideDown = ObjectAnimator.ofFloat(view, "translationY", 0, view.getHeight());
+            slideDown.setDuration(300);
+            slideDown.setInterpolator(new AccelerateInterpolator());
+
+            slideDown.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    // Khi animation kết thúc, xóa Fragment ngay lập tức
+                    view.postOnAnimation(() -> {
+                        if (mainActivity != null) {
+                            mainActivity.getSupportFragmentManager().popBackStack();
+                        }
+                    });
+                }
+                @Override
+                public void onAnimationCancel(Animator animation) {
+                }
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+                }
+            });
+            slideDown.start();
+        }
     }
 }

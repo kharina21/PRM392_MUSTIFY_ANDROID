@@ -130,31 +130,48 @@ public class HomeFragment extends Fragment implements MusicPlayerManager.OnPlayb
     }
 
     private void playSong(Song song) {
-        musicPlayerManager.playSong(getContext(), song);
+        if (musicPlayerManager != null) {
+            // Thiết lập danh sách bài hát trước khi phát
+            List<Song> allSongs = new SongDAO().getAllSongs(); // Hàm này lấy danh sách tất cả bài hát
+            int index = -1;
+            for (int i = 0; i < allSongs.size(); i++) {
+                if (allSongs.get(i).getSong_id() == song.getSong_id() ) {
+                    index = i;
+                    break;
+                }
+            }
+            Log.d("list all song","Number of song and index of song: "+allSongs.size()+" - index: "+index);
+            if (index != -1) {
+                musicPlayerManager.setPlaylist(allSongs, index);
+            }
 
-        // Thêm bài hát vào Recently Played
-        RecentlyPlayedDAO rpd = new RecentlyPlayedDAO();
-        rpd.addSongPlayed(usersession.getUserSession(), song);
+            // Phát bài hát
+            musicPlayerManager.playSong(getContext(), song);
 
-        // Cập nhật danh sách Recently Played ngay lập tức
-        loadSongs();
+            // Thêm bài hát vào Recently Played
+            RecentlyPlayedDAO rpd = new RecentlyPlayedDAO();
+            rpd.addSongPlayed(usersession.getUserSession(), song);
 
-        // Lấy MiniPlayerFragment từ MainActivity
-        MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) getActivity()
-                .getSupportFragmentManager()
-                .findFragmentById(R.id.miniPlayerFragment);
+            // Cập nhật danh sách Recently Played ngay lập tức
+            loadSongs();
 
-        if (miniPlayerFragment != null) {
-            miniPlayerFragment.updateMiniPlayerUI();
-            ((MainActivity) getActivity()).toggleMiniPlayerVisibility(true);
+            // Cập nhật MiniPlayer
+            MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) getActivity()
+                    .getSupportFragmentManager()
+                    .findFragmentById(R.id.miniPlayerFragment);
 
-            // Cập nhật SeekBar
-            int duration = musicPlayerManager.getDuration();
-            miniPlayerFragment.setSeekBarMax(duration);
-            miniPlayerFragment.updateSeekBar(0);
+            if (miniPlayerFragment != null) {
+                miniPlayerFragment.updateMiniPlayerUI();
+                ((MainActivity) getActivity()).toggleMiniPlayerVisibility(true);
 
-            handler.removeCallbacks(updateSeekBarRunnable);
-            handler.post(updateSeekBarRunnable);
+                // Cập nhật SeekBar
+                int duration = musicPlayerManager.getDuration();
+                miniPlayerFragment.setSeekBarMax(duration);
+                miniPlayerFragment.updateSeekBar(0);
+
+                handler.removeCallbacks(updateSeekBarRunnable);
+                handler.post(updateSeekBarRunnable);
+            }
         }
     }
 

@@ -34,12 +34,12 @@
         android:id="@+id/player_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="140dp"
         android:text="Song Title"
-        android:textSize="24sp"
+        android:textColor="#fff"
+        android:textSize="26sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.03"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/player_card" />
 
@@ -47,11 +47,10 @@
         android:id="@+id/player_artist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
         android:text="Artist Name"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.032"
+        android:textColor="#ccc"
+        android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/player_title" />
 
@@ -59,7 +58,9 @@
         android:id="@+id/seekBar"
         android:layout_width="match_parent"
         android:layout_height="12dp"
+        android:layout_marginStart="5dp"
         android:layout_marginTop="236dp"
+        android:layout_marginEnd="5dp"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         android:progressDrawable="@drawable/custom_seekbar"
@@ -157,6 +158,18 @@
         android:src="@drawable/ic_arrowdown"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/ivPlayerAddSongLike"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="152dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/player_title"
+        app:layout_constraintTop_toBottomOf="@+id/player_card"
+        app:srcCompat="@drawable/ic_addcircle" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

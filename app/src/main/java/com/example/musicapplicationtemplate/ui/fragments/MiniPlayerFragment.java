@@ -53,7 +53,7 @@ public class MiniPlayerFragment extends Fragment {
         miniPlayer = view.findViewById(R.id.miniPlayer);
 
         musicPlayerManager = MusicPlayerManager.getInstance();
-
+        musicPlayerManager.addOnUIUpdateListener(song -> updateMiniPlayerUI());
         seekBarMiniPlayer.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -83,7 +83,7 @@ public class MiniPlayerFragment extends Fragment {
         Song currentSong = musicPlayerManager.getCurrentSong();
         musicPlayerManager.setOnSongChangedListener(() -> updateMiniPlayerUI());
         if (currentSong != null) {
-            miniPlayerView.setVisibility(View.VISIBLE);
+//            miniPlayerView.setVisibility(View.VISIBLE);
             tvMiniTitle.setText(currentSong.getTitle());
             tvMiniArtist.setText(currentSong.getArtist());
             Glide.with(this)
@@ -163,6 +163,7 @@ public class MiniPlayerFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        musicPlayerManager.removeOnUIUpdateListener(song -> updateMiniPlayerUI());
         if (updateSeekBarRunnable != null) {
             handler.removeCallbacks(updateSeekBarRunnable);
             updateSeekBarRunnable = null;
@@ -183,10 +184,10 @@ public class MiniPlayerFragment extends Fragment {
     }
 
     private void openPlayerFragment() {
-        PlayerFragment playerFragment = new PlayerFragment();
+//
         getParentFragmentManager().beginTransaction()
                 .setCustomAnimations(R.anim.slide_up, 0)
-                .add(R.id.fragment_container, playerFragment)
+                .add(R.id.fragment_container, new PlayerFragment())
                 .addToBackStack(null) // Lưu trạng thái fragment trước đó
                 .commit();
         MainActivity mainActivity = (MainActivity) getActivity();
