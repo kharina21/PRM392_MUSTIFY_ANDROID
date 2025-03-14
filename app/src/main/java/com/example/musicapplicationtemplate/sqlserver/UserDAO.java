@@ -3,10 +3,39 @@ package com.example.musicapplicationtemplate.sqlserver;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.example.musicapplicationtemplate.model.User;
 
 public class UserDAO extends DBContext {
+    public List<User> getAllUser(){
+        String sql = "Select * from User";
+        List<User> list = new ArrayList<>();
+        try{
+            PreparedStatement st = connection.prepareStatement(sql);
+            ResultSet rs = st.executeQuery();
+            while(rs.next()){
+                User a = new User();
+                a.setId(rs.getInt("User_id"));
+                a.setUsername(rs.getString("username"));
+                a.setPassword(rs.getString("password"));
+                a.setFirst_name(rs.getString("first_name"));
+                a.setLast_name(rs.getString("last_name"));
+                a.setGender(rs.getBoolean("gender"));
+                a.setPhone(rs.getString("phone"));
+                a.setEmail(rs.getString("email"));
+                a.setAddress(rs.getString("address"));
+                a.setJoined_date(rs.getDate("join_date"));
+                a.setAccount_type(rs.getInt("account_type"));
+                a.setIs_active(rs.getBoolean("is_active"));
+                list.add(a);
+            }
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+        return list;
+    }
     public User getExistUser(String username, String password) {
         String sql = "SELECT [user_id]\n" +
                 "      ,[username]\n" +

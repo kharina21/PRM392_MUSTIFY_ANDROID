@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class DBContext {
     String classes = "net.sourceforge.jtds.jdbc.Driver";
-    protected static String ip = "192.168.1.25";
+    protected static String ip = "10.33.10.138";
     protected static String port = "1433";
     protected static String db = "MUSTIFY";
     protected static String user = "sa";
