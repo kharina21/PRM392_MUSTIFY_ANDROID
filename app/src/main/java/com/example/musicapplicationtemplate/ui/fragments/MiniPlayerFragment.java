@@ -81,40 +81,37 @@ public class MiniPlayerFragment extends Fragment {
 
     public void updateMiniPlayerUI() {
         Song currentSong = musicPlayerManager.getCurrentSong();
-        musicPlayerManager.setOnSongChangedListener(() -> updateMiniPlayerUI());
+        if (!isAdded()) return; // Tránh lỗi nếu Fragment chưa gắn vào Activity
+
         if (currentSong != null) {
 //            miniPlayerView.setVisibility(View.VISIBLE);
             tvMiniTitle.setText(currentSong.getTitle());
             tvMiniArtist.setText(currentSong.getArtist());
-            Glide.with(this)
+
+            Glide.with(requireContext())
                     .asBitmap()
                     .load("file:///android_asset/" + currentSong.getImage())
                     .into(new CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                             imgMiniPlayer.setImageBitmap(resource);
-                            setBackgroundFromAlbumArt(resource); // Cập nhật màu nền dựa vào ảnh
+                            setBackgroundFromAlbumArt(resource);
                         }
 
                         @Override
-                        public void onLoadCleared(@Nullable Drawable placeholder) {
-                        }
+                        public void onLoadCleared(@Nullable Drawable placeholder) {}
                     });
 
             syncPlayPauseButton();
-
             seekBarMiniPlayer.setMax(musicPlayerManager.getDuration());
 
             if (updateSeekBarRunnable == null) {
                 updateSeekBarRunnable = new Runnable() {
                     @Override
                     public void run() {
-                        if (musicPlayerManager.getCurrentSong() != null) {
-                            if (musicPlayerManager.isPlaying()) {
-                                int currentPosition = musicPlayerManager.getCurrentPosition();
-                                seekBarMiniPlayer.setProgress(currentPosition);
-                                handler.postDelayed(this, 1000); // Chỉ cập nhật khi đang phát
-                            }
+                        if (musicPlayerManager.isPlaying()) {
+                            seekBarMiniPlayer.setProgress(musicPlayerManager.getCurrentPosition());
+                            handler.postDelayed(this, 1000);
                         }
                     }
                 };
@@ -122,12 +119,9 @@ public class MiniPlayerFragment extends Fragment {
             }
 
             btnPlayPause.setOnClickListener(v -> togglePlayPause());
+
         } else {
-            if (currentSong != null) {
-                miniPlayerView.setVisibility(View.VISIBLE);
-            } else {
-                miniPlayerView.setVisibility(View.INVISIBLE);
-            }
+            miniPlayerView.setVisibility(View.GONE);
         }
     }
 
@@ -164,6 +158,7 @@ public class MiniPlayerFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         musicPlayerManager.removeOnUIUpdateListener(song -> updateMiniPlayerUI());
+
         if (updateSeekBarRunnable != null) {
             handler.removeCallbacks(updateSeekBarRunnable);
             updateSeekBarRunnable = null;

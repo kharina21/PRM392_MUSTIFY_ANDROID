@@ -7,6 +7,7 @@ const app = express();
 const port = 3505;
 
 app.use(cors());
+app.use(express.urlencoded({ extended: true })); // Hỗ trợ form-data
 // Middleware
 app.use(bodyParser.json());
 
@@ -14,5 +15,5 @@ app.use(bodyParser.json());
 app.use('/api/users', userRoutes);
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+    console.log(`Server running on port ${port}`);
 });

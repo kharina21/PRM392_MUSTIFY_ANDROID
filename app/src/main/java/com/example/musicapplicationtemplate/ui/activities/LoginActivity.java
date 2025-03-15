@@ -13,13 +13,18 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicapplicationtemplate.R;
 
+import com.example.musicapplicationtemplate.api.ApiClient;
+import com.example.musicapplicationtemplate.api.ApiUserService;
 import com.example.musicapplicationtemplate.utils.Utils;
 import com.example.musicapplicationtemplate.model.User;
-import com.example.musicapplicationtemplate.sqlserver.UserDAO;
 import com.example.musicapplicationtemplate.sqlserver.DBContext;
 import com.example.musicapplicationtemplate.utils.UserSession;
 
 import android.util.Log;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
     TextView txtCreateAccount, txtForgot, txtMsgLogin;
@@ -80,49 +85,67 @@ public class LoginActivity extends AppCompatActivity {
         edtPassword = findViewById(R.id.edtPassword);
         txtMsgLogin = findViewById(R.id.txtMsgLogin);
 
-        String username = edtUsername.getText().toString();
+        String usernameOrEmail = edtUsername.getText().toString();
         String password = edtPassword.getText().toString();
 
-        if (username.isEmpty() || password.isEmpty()) {
+        if (usernameOrEmail.isEmpty() || password.isEmpty()) {
             btnActive.setVisibility(View.GONE);
             txtMsgLogin.setText("Please enter username and password!");
             return;
         }
 
-        UserDAO adb = new UserDAO();
-        User user = adb.getExistUser(username, password);
 
-        if (user != null) {
-            if (user.isIs_active()) {
-                // Lưu user vào SharedPreferences thông qua UserSession
-                userSession.saveUserSession(user);
+        ApiUserService aus = ApiClient.getClient().create(ApiUserService.class);
+        Call<User> call = aus.getExistUser(usernameOrEmail, password);
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    User user = response.body();
+                    Log.d("API-USER-RESPONSE-BODY", "RESPONSE: " + response.body());
+                    Log.d("API-USER-RESPONSE-BODY", "RESPONSE Email: " + user.getEmail());
+                    Log.d("API-USER", "User nhận được từ login: " + user.getUsername() + "| user id: " + user.getId());
 
-                Intent intentLogin = new Intent(LoginActivity.this, MainActivity.class);
-                intentLogin.putExtra("account", user);
-                startActivity(intentLogin);
-                finish();
-            } else {
-                txtMsgLogin.setText("Your account is not active!");
-                btnActive.setVisibility(View.VISIBLE);
+                    if (user.isIs_active()) {
+                        // Lưu user vào SharedPreferences thông qua UserSession
+                        userSession.saveUserSession(user);
+                        Intent intentLogin = new Intent(LoginActivity.this, MainActivity.class);
+                        intentLogin.putExtra("account", user);
+                        startActivity(intentLogin);
+                        finish();
+                    } else {
+                        txtMsgLogin.setText("Your account is not active!");
+                        btnActive.setVisibility(View.VISIBLE);
 
-                btnActive.setOnClickListener(b -> {
-                    Intent intentActive = new Intent(LoginActivity.this, EnterCodeActivity.class);
-                    String code = u.generateConfirmationCode();
-                    Log.d("ConfirmCode", "Confirmation code: " + code);
+                        btnActive.setOnClickListener(b -> {
+                            Intent intentActive = new Intent(LoginActivity.this, EnterCodeActivity.class);
+                            String code = u.generateConfirmationCode();
+                            Log.d("ConfirmCode", "Confirmation code: " + code);
 
-                    intentActive.putExtra("confirmationCode", code);
-                    intentActive.putExtra("username", user.getUsername());
-                    intentActive.putExtra("email", user.getEmail());
+                            intentActive.putExtra("confirmationCode", code);
+                            intentActive.putExtra("username", user.getUsername());
+                            intentActive.putExtra("email", user.getEmail());
 
-                    u.sendEmailInBackground(user.getEmail(), "[MUSTIFY] Active Account", user.getUsername(), code, "Mã kích hoạt tài khoản");
-                    startActivity(intentActive);
-                    finish();
-                });
+                            u.sendEmailInBackground(user.getEmail(), "[MUSTIFY] Active Account", user.getUsername(), code, "Mã kích hoạt tài khoản");
+                            startActivity(intentActive);
+                            finish();
+                        });
+                    }
+
+                } else {
+                    btnActive.setVisibility(View.GONE);
+                    txtMsgLogin.setText("Username or password is incorrect!");
+                    Log.e("API-USER", "Sai mật khẩu hoặc tài khoản: " + response.message());
+                }
             }
-        } else {
-            btnActive.setVisibility(View.GONE);
-            txtMsgLogin.setText("Username or password is incorrect!");
-        }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.e("API-USER", "Lỗi kết nối: " + t.getMessage());
+            }
+        });
+
+
     }
 
     private void testDatabaseConnection() {

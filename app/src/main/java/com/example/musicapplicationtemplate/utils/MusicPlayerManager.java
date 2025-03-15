@@ -55,6 +55,9 @@ public class MusicPlayerManager {
     }
 
     public void playSong(Context context, Song song) {
+        if(mediaPlayer == null){
+            mediaPlayer = new MediaPlayer();
+        }
         try {
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
@@ -223,6 +226,22 @@ public class MusicPlayerManager {
 
     public interface OnSongChangedListener {
         void onSongChanged();
+    }
+
+    public void clearCurrentSong() {
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
+            mediaPlayer.reset(); // Đặt lại MediaPlayer
+        }
+
+        playlist.clear();  // Xóa toàn bộ danh sách phát
+        currentSong = null; // Không có bài hát nào đang phát
+        currentIndex = -1;  // Đặt index về -1 để tránh lỗi truy cập
+        isPlaying = false;
+
+        notifyUIUpdate(null); // Cập nhật UI để ẩn thông tin bài hát
     }
 
 

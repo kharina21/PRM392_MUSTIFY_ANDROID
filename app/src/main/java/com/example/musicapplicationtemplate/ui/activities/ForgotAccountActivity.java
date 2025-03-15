@@ -16,8 +16,15 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.musicapplicationtemplate.R;
 
+import com.example.musicapplicationtemplate.api.ApiClient;
+import com.example.musicapplicationtemplate.api.ApiResponse;
+import com.example.musicapplicationtemplate.api.ApiUserService;
 import com.example.musicapplicationtemplate.model.User;
 import com.example.musicapplicationtemplate.sqlserver.UserDAO;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ForgotAccountActivity extends AppCompatActivity {
     EditText edtForgotUserEmail;
@@ -34,37 +41,63 @@ public class ForgotAccountActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        UserDAO adb = new UserDAO();
+
         edtForgotUserEmail = findViewById(R.id.edtForgotUserEmail);
         txtForgotMsg = findViewById(R.id.txtForgotMsg);
         btnFindAccount = findViewById(R.id.btnFindAccount);
         btnForgotCancel = findViewById(R.id.btnForgotCancel);
         btnGetPassword = findViewById(R.id.btnGetPassword);
 
+//        UserDAO adb = new UserDAO();
+        ApiUserService aus = ApiClient.getClient().create(ApiUserService.class);
         btnFindAccount.setOnClickListener(v -> {
             String usernameOrEmail = edtForgotUserEmail.getText().toString();
 
-            User a = adb.getUserByUsernameOrEmail(usernameOrEmail);
-            if (a != null) {
-                txtForgotMsg.setText("Account found: " + a.getUsername());
-                btnGetPassword.setVisibility(View.VISIBLE);
-            } else {
-                txtForgotMsg.setText("Account not found");
-                btnGetPassword.setVisibility(View.GONE);
-            }
+            Call<User> call = aus.getUserByUsernameOrEmail(usernameOrEmail);
+            call.enqueue(new Callback<User>() {
+                @Override
+                public void onResponse(Call<User> call, Response<User> response) {
+                    User a = response.body();
+                    if (a != null) {
+                        txtForgotMsg.setText("Account found: " + a.getUsername());
+                        btnGetPassword.setVisibility(View.VISIBLE);
+                    } else {
+                        txtForgotMsg.setText("Account not found");
+                        btnGetPassword.setVisibility(View.GONE);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<User> call, Throwable t) {
+
+                }
+            });
+
         });
 
 
         btnGetPassword.setOnClickListener(v -> {
              String usernameOrEmail = edtForgotUserEmail.getText().toString();
-             User a = adb.getUserByUsernameOrEmail(usernameOrEmail);
-             if (a != null) {
-                 Intent intent1 = new Intent(ForgotAccountActivity.this, GetPasswordActivity.class);
-                 intent1.putExtra("account", a);
-                 startActivity(intent1);
-             }else{
-                 Toast.makeText(ForgotAccountActivity.this, "Account not found", Toast.LENGTH_SHORT).show();
-             }
+            Call<User> call = aus.getUserByUsernameOrEmail(usernameOrEmail);
+            call.enqueue(new Callback<User>() {
+                @Override
+                public void onResponse(Call<User> call, Response<User> response) {
+                    User a = response.body();
+                    if (a != null) {
+                        Intent intent1 = new Intent(ForgotAccountActivity.this, GetPasswordActivity.class);
+                        intent1.putExtra("account", a);
+                        startActivity(intent1);
+                    }else{
+                        Toast.makeText(ForgotAccountActivity.this, "Account not found", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<User> call, Throwable t) {
+
+                }
+            });
+
         });
 
         btnForgotCancel.setOnClickListener(v -> {

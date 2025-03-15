@@ -5,13 +5,20 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicapplicationtemplate.R;
 
-import com.example.musicapplicationtemplate.sqlserver.UserDAO;
+import com.example.musicapplicationtemplate.api.ApiClient;
+import com.example.musicapplicationtemplate.api.ApiResponse;
+import com.example.musicapplicationtemplate.api.ApiUserService;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class EnterCodeActivity extends AppCompatActivity {
 
@@ -33,6 +40,8 @@ public class EnterCodeActivity extends AppCompatActivity {
         textView4 = findViewById(R.id.textView4);
         textView4.setText("Enter the code we sent to " + email + " to activate your account " + username + ".");
 
+        ApiUserService aus = ApiClient.getClient().create(ApiUserService.class);
+
         btnConfirm = findViewById(R.id.btnConfirm);
         //confirm code
         btnConfirm.setOnClickListener(v -> {
@@ -43,10 +52,25 @@ public class EnterCodeActivity extends AppCompatActivity {
                 txtCodeMsg.setText("Please enter your code!");
             } else {
                 if (codeUserEnter.equals(confirmationCode)) {
-                    UserDAO adb = new UserDAO();
-                    System.out.println(adb.changeActiveStatusByUserId(username, true));
-                    Intent intent = new Intent(EnterCodeActivity.this, RegisterSuccessActivity.class);
-                    startActivity(intent);
+//                    UserDAO adb = new UserDAO();
+                    Call<ApiResponse> call = aus.changeActiveStatusByUsername(username,true);
+                    call.enqueue(new Callback<ApiResponse>() {
+                        @Override
+                        public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                            if(response.isSuccessful() && response.body()!=null){
+                                Toast.makeText(getApplicationContext(),response.body().getMessage(),Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(EnterCodeActivity.this, RegisterSuccessActivity.class);
+                                startActivity(intent);
+                            }else{
+                                Toast.makeText(getApplicationContext(), "Update failed", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ApiResponse> call, Throwable t) {
+                            Toast.makeText(getApplicationContext(), "API Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 } else {
                     txtCodeMsg.setText("Code is incorrect!");
                 }
