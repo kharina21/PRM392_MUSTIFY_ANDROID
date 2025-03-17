@@ -6,6 +6,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -24,6 +25,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
     private MusicPlayerManager musicPlayerManager;
+    private MediaPlayer mediaPlayer = new MediaPlayer();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,13 @@ public class MainActivity extends AppCompatActivity {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new HomeFragment())
                     .commit();
+        }
+
+        if (musicPlayerManager.checkMediaPlayer() == true) {
+            Log.d("MediaPlayer-MainActivity","GetCurrentSong: "+musicPlayerManager.getCurrentSong());
+            toggleMiniPlayerVisibility(true);
+        } else {
+            toggleMiniPlayerVisibility(false);
         }
     }
 
@@ -90,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                                 .commit();
 
                         // Chỉ hiển thị MiniPlayerFragment nếu có bài hát đang phát
-                        if (musicPlayerManager.getCurrentSong() != null && musicPlayerManager.isPlaying() ) {
+                        if (mediaPlayer != null) {
                             Log.d("GetCurrentSong","GetCurrentSong: "+musicPlayerManager.getCurrentSong());
                             toggleMiniPlayerVisibility(true);
                         } else {

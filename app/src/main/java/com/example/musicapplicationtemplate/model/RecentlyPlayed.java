@@ -1,11 +1,16 @@
 package com.example.musicapplicationtemplate.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.util.Date;
 
 public class RecentlyPlayed implements Serializable {
     private int id;
+
+    @SerializedName("user")
     private User user;
+    @SerializedName("song")
     private Song song;
 
     private Date played_at;

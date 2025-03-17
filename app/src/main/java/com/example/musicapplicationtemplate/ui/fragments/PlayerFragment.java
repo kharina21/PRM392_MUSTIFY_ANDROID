@@ -3,8 +3,8 @@ package com.example.musicapplicationtemplate.ui.fragments;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -15,19 +15,13 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.widget.Toast;
-
 import androidx.palette.graphics.Palette;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.musicapplicationtemplate.model.Like;
@@ -35,11 +29,8 @@ import com.example.musicapplicationtemplate.sqlserver.LikeDAO;
 import com.example.musicapplicationtemplate.ui.activities.MainActivity;
 import com.example.musicapplicationtemplate.utils.MusicPlayerManager;
 import com.example.musicapplicationtemplate.R;
-
 import com.example.musicapplicationtemplate.model.Song;
 import com.example.musicapplicationtemplate.utils.UserSession;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerFragment extends Fragment {
@@ -51,6 +42,7 @@ public class PlayerFragment extends Fragment {
     private boolean isShuffle;
     private boolean isSongLiked = false;
     private ImageView btnDown;
+    private MediaPlayer mediaPlayer = new MediaPlayer();
     private int repeatMode;
 
     @Nullable
@@ -314,6 +306,10 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
         musicPlayerManager.removeOnUIUpdateListener(song -> setupUI());
     }
 }

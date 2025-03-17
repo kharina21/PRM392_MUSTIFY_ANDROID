@@ -81,13 +81,9 @@ public class MusicService extends Service {
         Log.d(TAG, "MusicService destroyed");
 
         if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-            }
             mediaPlayer.release();
             mediaPlayer = null;
         }
-
         handler.removeCallbacks(updateSeekBar);
     }
 }

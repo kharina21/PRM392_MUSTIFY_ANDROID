@@ -208,7 +208,6 @@ export async function getAllUser(req, res) {
     try {
         const pool = await getConnection();
         const result = await pool.request().query(query);
-
         const users = result.recordset.map((row) => {
             return {
                 id: row.user_id,

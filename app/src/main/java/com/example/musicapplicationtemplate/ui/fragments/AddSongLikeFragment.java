@@ -106,7 +106,6 @@ public class AddSongLikeFragment extends Fragment {
             Bundle result = new Bundle();
             result.putBoolean("isUpdated", true);
             getParentFragmentManager().setFragmentResult("updateSongList", result);
-
             toggleAddSongLikeClose();
         }
     }

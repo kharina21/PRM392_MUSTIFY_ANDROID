@@ -54,6 +54,11 @@ public class MusicPlayerManager {
         notifyUIUpdate(currentSong);
     }
 
+    public boolean checkMediaPlayer(){
+        if(mediaPlayer != null) return true;
+        else return false;
+    }
+
     public void playSong(Context context, Song song) {
         if(mediaPlayer == null){
             mediaPlayer = new MediaPlayer();
