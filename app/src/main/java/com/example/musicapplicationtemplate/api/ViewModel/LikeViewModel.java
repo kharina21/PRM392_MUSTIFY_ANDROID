@@ -1,12 +1,12 @@
-package com.example.musicapplicationtemplate.viewmodel;
+package com.example.musicapplicationtemplate.api.ViewModel;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.musicapplicationtemplate.api.ApiClient;
-import com.example.musicapplicationtemplate.api.ApiLikeService;
-import com.example.musicapplicationtemplate.api.ApiResponse;
+import com.example.musicapplicationtemplate.api.ApiService.ApiClient;
+import com.example.musicapplicationtemplate.api.ApiService.ApiLikeService;
+import com.example.musicapplicationtemplate.api.ApiService.ApiResponse;
 import com.example.musicapplicationtemplate.model.Like;
 
 import java.util.List;

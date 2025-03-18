@@ -1,4 +1,4 @@
-package com.example.musicapplicationtemplate.api;
+package com.example.musicapplicationtemplate.api.ApiService;
 
 import com.example.musicapplicationtemplate.model.Song;
 

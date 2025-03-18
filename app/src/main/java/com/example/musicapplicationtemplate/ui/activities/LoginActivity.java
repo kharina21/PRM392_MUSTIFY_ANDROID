@@ -6,15 +6,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicapplicationtemplate.R;
 
-import com.example.musicapplicationtemplate.api.ApiClient;
-import com.example.musicapplicationtemplate.api.ApiUserService;
+import com.example.musicapplicationtemplate.api.ApiService.ApiClient;
+import com.example.musicapplicationtemplate.api.ApiService.ApiUserService;
 import com.example.musicapplicationtemplate.utils.Utils;
 import com.example.musicapplicationtemplate.model.User;
 import com.example.musicapplicationtemplate.utils.UserSession;

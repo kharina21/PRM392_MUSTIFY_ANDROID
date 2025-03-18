@@ -1,6 +1,5 @@
 package com.example.musicapplicationtemplate.ui.fragments;
 
-import android.app.AlertDialog;
 import android.graphics.Rect;
 import android.os.Bundle;
 
@@ -23,8 +22,8 @@ import com.example.musicapplicationtemplate.model.Song;
 import com.example.musicapplicationtemplate.ui.activities.MainActivity;
 import com.example.musicapplicationtemplate.utils.MusicPlayerManager;
 import com.example.musicapplicationtemplate.utils.UserSession;
-import com.example.musicapplicationtemplate.viewmodel.LikeViewModel;
-import com.example.musicapplicationtemplate.viewmodel.RecentlyPlayedViewModel;
+import com.example.musicapplicationtemplate.api.ViewModel.LikeViewModel;
+import com.example.musicapplicationtemplate.api.ViewModel.RecentlyPlayedViewModel;
 import java.util.ArrayList;
 import java.util.List;
 

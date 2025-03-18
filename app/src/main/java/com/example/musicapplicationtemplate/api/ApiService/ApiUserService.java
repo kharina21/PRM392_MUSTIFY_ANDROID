@@ -1,7 +1,6 @@
-package com.example.musicapplicationtemplate.api;
+package com.example.musicapplicationtemplate.api.ApiService;
 
 import com.example.musicapplicationtemplate.model.User;
-import com.google.android.gms.common.api.Api;
 
 import java.util.List;
 

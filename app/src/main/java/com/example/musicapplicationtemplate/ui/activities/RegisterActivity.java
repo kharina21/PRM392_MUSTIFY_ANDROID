@@ -10,9 +10,9 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.musicapplicationtemplate.api.ApiClient;
-import com.example.musicapplicationtemplate.api.ApiResponse;
-import com.example.musicapplicationtemplate.api.ApiUserService;
+import com.example.musicapplicationtemplate.api.ApiService.ApiClient;
+import com.example.musicapplicationtemplate.api.ApiService.ApiResponse;
+import com.example.musicapplicationtemplate.api.ApiService.ApiUserService;
 import com.example.musicapplicationtemplate.utils.Utils;
 import com.example.musicapplicationtemplate.model.User;
 import android.util.Log;

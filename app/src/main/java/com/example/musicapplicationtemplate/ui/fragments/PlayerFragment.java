@@ -31,7 +31,7 @@ import com.example.musicapplicationtemplate.utils.MusicPlayerManager;
 import com.example.musicapplicationtemplate.R;
 import com.example.musicapplicationtemplate.model.Song;
 import com.example.musicapplicationtemplate.utils.UserSession;
-import com.example.musicapplicationtemplate.viewmodel.LikeViewModel;
+import com.example.musicapplicationtemplate.api.ViewModel.LikeViewModel;
 
 public class PlayerFragment extends Fragment {
     private ImageView playerImage, playerPlayPause, playerPrevious, playerNext, playerShuffle, playerRepeat, ivPlayerAddSongLike;

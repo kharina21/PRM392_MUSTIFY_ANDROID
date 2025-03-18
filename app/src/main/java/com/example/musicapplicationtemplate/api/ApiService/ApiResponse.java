@@ -1,4 +1,4 @@
-package com.example.musicapplicationtemplate.api;
+package com.example.musicapplicationtemplate.api.ApiService;
 
 public class ApiResponse {
     private boolean success;

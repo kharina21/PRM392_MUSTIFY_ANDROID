@@ -24,8 +24,8 @@ import com.example.musicapplicationtemplate.adapter.SongAdapter;
 import com.example.musicapplicationtemplate.utils.UserSession;
 import com.example.musicapplicationtemplate.model.RecentlyPlayed;
 import com.example.musicapplicationtemplate.model.Song;
-import com.example.musicapplicationtemplate.viewmodel.RecentlyPlayedViewModel;
-import com.example.musicapplicationtemplate.viewmodel.SongViewModel;
+import com.example.musicapplicationtemplate.api.ViewModel.RecentlyPlayedViewModel;
+import com.example.musicapplicationtemplate.api.ViewModel.SongViewModel;
 public class HomeFragment extends Fragment implements MusicPlayerManager.OnPlaybackChangeListener {
     private RecyclerView rvList5Lastest, rvRecentlyPlayed;
     private TextView tvWelcomeTag;
