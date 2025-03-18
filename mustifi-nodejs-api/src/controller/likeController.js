@@ -1,9 +1,9 @@
 import { sql, getConnection } from '../config/dbconfig.js';
 
-export async function removeSongInListLike(req, res) {
+export async function deleteSongInListLike(req, res) {
     const { userId, songId } = req.body;
     const query = `DELETE FROM [dbo].[Likes] 
-                   WHERE user_id = @userId and song_id = @userId`;
+                   WHERE user_id = @userId and song_id = @songId`;
 
     try {
         const pool = await getConnection();
@@ -81,5 +81,31 @@ export async function getListSongLikeByUserId(req, res) {
         return res
             .status(500)
             .json({ message: `fail to get list like song: ${err}` });
+    }
+}
+
+export async function addSongToListLike(req, res) {
+    const { userId, songId } = req.body;
+    const query = `INSERT INTO [dbo].[Likes]
+                          ([user_id]
+                           ,[song_id])
+                     VALUES(@userId,@songId)`;
+    try {
+        const pool = await getConnection();
+        await pool
+            .request()
+            .input('userId', sql.Int, userId)
+            .input('songId', sql.Int, songId)
+            .query(query);
+        console.log('add song success');
+        return res.json({
+            success: true,
+            message: 'add song to like list successed!',
+        });
+    } catch (err) {
+        console.error('Error adding song to list like:', err);
+        return res
+            .status(500)
+            .json({ success: false, message: 'Interval server err', err });
     }
 }

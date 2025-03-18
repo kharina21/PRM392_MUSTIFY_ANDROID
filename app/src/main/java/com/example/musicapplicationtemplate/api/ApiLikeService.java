@@ -10,9 +10,9 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
 
 public interface ApiLikeService {
-    @POST("/api/like/removeSongInListLike")
+    @POST("/api/like/deleteSongInListLike")
     @FormUrlEncoded
-    Call<ApiResponse> removeSongInListLike(
+    Call<ApiResponse> deleteSongInListLike(
             @Field("userId") int userId,
             @Field("songId") int songId
     );
@@ -21,5 +21,12 @@ public interface ApiLikeService {
     @FormUrlEncoded
     Call<List<Like>> getListSongLikeByUserId(
             @Field("userId") int userId
+    );
+
+    @POST("/api/like/addSongToListLike")
+    @FormUrlEncoded
+    Call<ApiResponse> addSongToListLike(
+            @Field("userId") int userId,
+            @Field("songId") int songId
     );
 }

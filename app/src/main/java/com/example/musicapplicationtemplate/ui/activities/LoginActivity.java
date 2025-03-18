@@ -17,7 +17,6 @@ import com.example.musicapplicationtemplate.api.ApiClient;
 import com.example.musicapplicationtemplate.api.ApiUserService;
 import com.example.musicapplicationtemplate.utils.Utils;
 import com.example.musicapplicationtemplate.model.User;
-import com.example.musicapplicationtemplate.sqlserver.DBContext;
 import com.example.musicapplicationtemplate.utils.UserSession;
 
 import android.util.Log;
@@ -149,14 +148,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void testDatabaseConnection() {
-        new Thread(() -> {
-            DBContext dbContext = new DBContext();
-            boolean isConnected = dbContext.testConnection();
-            runOnUiThread(() -> {
-                Toast.makeText(LoginActivity.this,
-                        isConnected ? "Database connection successful" : "Database connection failed",
-                        Toast.LENGTH_SHORT).show();
-            });
-        }).start();
+
     }
 }

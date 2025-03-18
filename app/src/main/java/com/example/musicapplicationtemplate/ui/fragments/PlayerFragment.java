@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.palette.graphics.Palette;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,13 +26,12 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.musicapplicationtemplate.model.Like;
-import com.example.musicapplicationtemplate.sqlserver.LikeDAO;
 import com.example.musicapplicationtemplate.ui.activities.MainActivity;
 import com.example.musicapplicationtemplate.utils.MusicPlayerManager;
 import com.example.musicapplicationtemplate.R;
 import com.example.musicapplicationtemplate.model.Song;
 import com.example.musicapplicationtemplate.utils.UserSession;
-import java.util.List;
+import com.example.musicapplicationtemplate.viewmodel.LikeViewModel;
 
 public class PlayerFragment extends Fragment {
     private ImageView playerImage, playerPlayPause, playerPrevious, playerNext, playerShuffle, playerRepeat, ivPlayerAddSongLike;
@@ -43,8 +43,18 @@ public class PlayerFragment extends Fragment {
     private boolean isSongLiked = false;
     private ImageView btnDown;
     private MediaPlayer mediaPlayer = new MediaPlayer();
+
+    private LikeViewModel likeViewModel;
     private int repeatMode;
 
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+//        songViewModel = new ViewModelProvider(this).get(SongViewModel.class);
+        likeViewModel = new ViewModelProvider(this).get(LikeViewModel.class);
+
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -132,29 +142,31 @@ public class PlayerFragment extends Fragment {
 
     private void checkIsLikeSong() {
         Song song  = musicPlayerManager.getCurrentSong();
-        List<Like> listLike = new LikeDAO().getListSongLikeByUserId(new UserSession(requireContext()).getUserSession().getId());
-        for(Like like : listLike) {
-            if(like.getSong().getSong_id() == song.getSong_id()){
-                ivPlayerAddSongLike.setImageResource(R.drawable.ic_checkcircle);
-                isSongLiked = true;
-                return;
+        likeViewModel.fetchSongsLikeByUserId(new UserSession(requireContext()).getUserSession().getId());
+        likeViewModel.getSongsLikeByUserId().observe(getViewLifecycleOwner(), listLike ->{
+            for(Like like : listLike) {
+                if(like.getSong().getSong_id() == song.getSong_id()){
+                    ivPlayerAddSongLike.setImageResource(R.drawable.ic_checkcircle);
+                    isSongLiked = true;
+                    return;
+                }
             }
-        }
-        ivPlayerAddSongLike.setImageResource(R.drawable.ic_addcircle);
-        isSongLiked = false;
+            ivPlayerAddSongLike.setImageResource(R.drawable.ic_addcircle);
+            isSongLiked = false;
+        });
     }
 
     private void toggleAddAndRemoveSong(){
         Song song = musicPlayerManager.getCurrentSong();
-        LikeDAO ldb = new LikeDAO();
+
         if(isSongLiked){
             ivPlayerAddSongLike.setImageResource(R.drawable.ic_addcircle);
-            ldb.removeSongInListLike(new UserSession(requireContext()).getUserSession().getId(),song.getSong_id());
+            likeViewModel.fetchDeleteSongInListLike(new UserSession(requireContext()).getUserSession().getId(),song.getSong_id());
             Toast.makeText(requireContext(), "Đã xóa \""+song.getTitle()+"\" khỏi danh sách ưa thích", Toast.LENGTH_SHORT).show();
             isSongLiked = false;
         }else{
             ivPlayerAddSongLike.setImageResource(R.drawable.ic_checkcircle);
-            ldb.addSongToListLike(new UserSession(requireContext()).getUserSession().getId(),song.getSong_id());
+            likeViewModel.fetchAddSongToListLike(new UserSession(requireContext()).getUserSession().getId(),song.getSong_id());
             Toast.makeText(requireContext(), "Đã thêm \""+song.getTitle()+"\" vào danh sách ưa thích", Toast.LENGTH_SHORT).show();
             isSongLiked = true;
         }

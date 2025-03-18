@@ -27,8 +27,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
@@ -55,5 +55,7 @@ dependencies {
     implementation (libs.converter.gson)
     implementation (libs.glide)
     annotationProcessor (libs.compiler.v4160)
+    implementation (libs.lifecycle.livedata.ktx)
+    implementation (libs.lifecycle.viewmodel.ktx)
 
 }

@@ -167,7 +167,6 @@ export async function checkUsernameExist(req, res) {
 // Thêm người dùng mới
 export async function addUser(req, res) {
     const user = req.body;
-    console.log(`User: ${user}`);
     const query = `
     INSERT INTO [dbo].[User] 
     ([username], [password], [first_name], [last_name], [address], [gender], [email], [account_type], [is_active])

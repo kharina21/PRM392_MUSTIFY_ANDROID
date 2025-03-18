@@ -1,7 +1,7 @@
 import { sql, getConnection } from '../config/dbconfig.js';
 
-export async function getLastest5Songs(req, res) {
-    const query = `SELECT TOP 5 [song_id]
+export async function getLastestSongs(req, res) {
+    const query = `SELECT TOP 10 [song_id]
                            ,[title]
                            ,[type_id]
                            ,[artist]

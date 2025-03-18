@@ -10,24 +10,22 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
 import com.example.musicapplicationtemplate.R;
-import com.example.musicapplicationtemplate.model.Like;
-import com.example.musicapplicationtemplate.sqlserver.LikeDAO;
+import com.example.musicapplicationtemplate.api.ApiClient;
+import com.example.musicapplicationtemplate.api.ApiLikeService;
+import com.example.musicapplicationtemplate.api.ApiRecentlyPlayedService;
+import com.example.musicapplicationtemplate.api.ApiResponse;
 import com.example.musicapplicationtemplate.utils.UserSession;
-
 import java.util.List;
-
-import com.example.musicapplicationtemplate.model.RecentlyPlayed;
 import com.example.musicapplicationtemplate.model.Song;
 import com.example.musicapplicationtemplate.model.User;
-import com.example.musicapplicationtemplate.sqlserver.RecentlyPlayedDAO;
-
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
     Context context;
     List<Song> songs;
@@ -35,6 +33,8 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     private final OnSongClickListener songClickListener;
 
     private UserSession usersession;
+    private ApiRecentlyPlayedService arps;
+    private ApiLikeService als;
 
     public interface OnSongClickListener {
         void onSongClick(Song song);
@@ -46,6 +46,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         this.layoutId = layoutId;
         this.songClickListener = songClickListener;
         this.usersession = new UserSession(context);
+
     }
 
     @NonNull
@@ -73,10 +74,16 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
             //add vao recently played
             User u = usersession.getUserSession();
-            RecentlyPlayed rp = new RecentlyPlayed();
-            RecentlyPlayedDAO rpd = new RecentlyPlayedDAO();
-            rpd.addSongPlayed(u,song);
-            Log.d("add song to recently played list", "add song to recently played list: "+song.getTitle());
+            arps = ApiClient.getClient().create(ApiRecentlyPlayedService.class);
+            arps.addSongPlayed(u.getId(),song.getSong_id()).enqueue(new Callback<ApiResponse>() {
+                @Override
+                public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                    Log.d("add song to recently played list", "add song to recently played list: "+song.getTitle());
+                }
+                @Override
+                public void onFailure(Call<ApiResponse> call, Throwable t) {
+                }
+            });
             if (songClickListener != null) {
                 songClickListener.onSongClick(song);
             }
@@ -100,23 +107,30 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 Toast.makeText(context, "Added to Playlist: " + song.getTitle(), Toast.LENGTH_SHORT).show();
                 return true;
             } else if (item.getItemId() == R.id.option_delete) {
-                LikeDAO ldb = new LikeDAO();
-                ldb.removeSongInListLike(usersession.getUserSession().getId(),song.getSong_id());
-                //update rv
-                int position = songs.indexOf(song);
-                if (position != -1) {
-                    songs.remove(position);
-                    notifyItemRemoved(position); // Cập nhật RecyclerView
-                }
-                // Gửi thông báo cập nhật
-                if (context instanceof AppCompatActivity) {
-                    Bundle result = new Bundle();
-                    result.putBoolean("isUpdated", true);
-                    AppCompatActivity activity = (AppCompatActivity) context;
-                    activity.getSupportFragmentManager().setFragmentResult("updateSongList", result);
-                }
-                Toast.makeText(context, "Deleted: " + song.getTitle(), Toast.LENGTH_SHORT).show();
-                return true;
+                als = ApiClient.getClient().create(ApiLikeService.class);
+                als.deleteSongInListLike(usersession.getUserSession().getId(),song.getSong_id()).enqueue(new Callback<ApiResponse>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                        //update rv
+                        int position = songs.indexOf(song);
+                        if (position != -1) {
+                            songs.remove(position);
+                            notifyItemRemoved(position); // Cập nhật RecyclerView
+                        }
+                        // Gửi thông báo cập nhật
+                        if (context instanceof AppCompatActivity) {
+                            Bundle result = new Bundle();
+                            result.putBoolean("isUpdated", true);
+                            AppCompatActivity activity = (AppCompatActivity) context;
+                            activity.getSupportFragmentManager().setFragmentResult("updateSongList", result);
+                        }
+                        Toast.makeText(context, "Deleted: " + song.getTitle(), Toast.LENGTH_SHORT).show();
+                    }
+                    @Override
+                    public void onFailure(Call<ApiResponse> call, Throwable t) {
+                    }
+                });return true;
+
             } else {
                 return false;
             }
