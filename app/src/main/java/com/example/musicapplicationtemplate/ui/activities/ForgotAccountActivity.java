@@ -20,7 +20,6 @@ import com.example.musicapplicationtemplate.api.ApiClient;
 import com.example.musicapplicationtemplate.api.ApiResponse;
 import com.example.musicapplicationtemplate.api.ApiUserService;
 import com.example.musicapplicationtemplate.model.User;
-import com.example.musicapplicationtemplate.sqlserver.UserDAO;
 
 import retrofit2.Call;
 import retrofit2.Callback;

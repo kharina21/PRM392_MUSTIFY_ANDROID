@@ -15,7 +15,6 @@ import com.example.musicapplicationtemplate.api.ApiResponse;
 import com.example.musicapplicationtemplate.api.ApiUserService;
 import com.example.musicapplicationtemplate.utils.Utils;
 import com.example.musicapplicationtemplate.model.User;
-import com.example.musicapplicationtemplate.sqlserver.UserDAO;
 import android.util.Log;
 
 import com.example.musicapplicationtemplate.R;
