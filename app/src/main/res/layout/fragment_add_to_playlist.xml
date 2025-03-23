@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000"
+    android:clickable="true"
+    android:focusable="true"
+    tools:context=".ui.fragments.AddToPlaylistFragment">
+
+    <!-- View có màu nền cho thanh tiêu đề -->
+    <View
+        android:id="@+id/titleBackground"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#3d3d3d"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Nút Cancel ở góc trái trên cùng -->
+    <TextView
+        android:id="@+id/tvAddToPlaylistCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontWeight="400"
+        android:padding="16dp"
+        android:text="Hủy"
+        android:textColor="#ccc"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- TextView "Create Playlist" ở chính giữa màn hình -->
+    <TextView
+        android:id="@+id/textCreatePlaylist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="Danh sách phát"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+<!--    scroll bat dau o day-->
+
+    <Button
+        android:id="@+id/btnNewPlaylist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#fff"
+        android:paddingStart="24dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="10dp"
+        android:text="Tạo danh sách phát"
+        android:textFontWeight="700"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleBackground" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/savedPlaylist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnNewPlaylist">
+
+        <TextView
+            android:id="@+id/tvPlaylistSaved"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Đã thêm"
+            android:textColor="#fff"
+            android:textFontWeight="700"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/addToSongLike"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#3d3d3d"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvPlaylistSaved">
+
+
+            <ImageView
+                android:id="@+id/imageView5"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="@drawable/rounded_bg"
+                android:backgroundTint="#B7B1F2"
+                android:clipToOutline="true"
+                android:padding="10dp"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/ic_favorite" />
+
+            <TextView
+                android:id="@+id/textView17"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:text="Bài hát ưa thích"
+                android:textSize="24dp"
+                android:textFontWeight="700"
+                android:textColor="#ccc" />
+            <CheckBox
+                android:id="@+id/addSongToLikes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/listPlaylistSaved"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_percent="0.7"
+            app:layout_constraintTop_toBottomOf="@id/addToSongLike"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/relatedPlaylist"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:paddingTop="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/savedPlaylist">
+
+        <TextView
+            android:id="@+id/tvRelatedPlaylist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Liên quan nhất"
+            android:textColor="#fff"
+            android:textFontWeight="700"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <LinearLayout
+            android:id="@+id/addToSongLikeRelated"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#3d3d3d"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvRelatedPlaylist">
+
+
+            <ImageView
+                android:id="@+id/imageView6"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="@drawable/rounded_bg"
+                android:backgroundTint="#B7B1F2"
+                android:clipToOutline="true"
+                android:padding="10dp"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/ic_favorite" />
+
+            <TextView
+                android:id="@+id/textView18"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:text="Bài hát ưa thích"
+                android:textSize="24dp"
+                android:textFontWeight="700"
+                android:textColor="#ccc" />
+            <CheckBox
+                android:id="@+id/addSongToLikesRelated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/listRelatedPlaylist"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:padding="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/addToSongLikeRelated"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <Button
+            android:id="@+id/btnCreatePlaylistDone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="33dp"
+            android:backgroundTint="@color/spotify_green"
+            android:text="Xong"
+            android:textFontWeight="700"
+            app:layout_constraintBottom_toBottomOf="@+id/listRelatedPlaylist"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

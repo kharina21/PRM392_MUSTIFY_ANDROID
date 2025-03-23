@@ -103,7 +103,6 @@ export async function addSongToListLike(req, res) {
             message: 'add song to like list successed!',
         });
     } catch (err) {
-        console.error('Error adding song to list like:', err);
         return res
             .status(500)
             .json({ success: false, message: 'Interval server err', err });

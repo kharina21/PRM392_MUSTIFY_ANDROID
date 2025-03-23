@@ -4,6 +4,7 @@ import userRoutes from './src/routes/userRoutes.js'; // Import các route bằng
 import recentlyPlayedRoutes from './src/routes/recentlyPlayedRoutes.js';
 import songRoutes from './src/routes/songRoutes.js';
 import likeRoutes from './src/routes/likeRoutes.js';
+import playlistRoutes from './src/routes/playlistRoutes.js';
 import cors from 'cors';
 
 const app = express();
@@ -19,6 +20,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/recentlyPlayed', recentlyPlayedRoutes);
 app.use('/api/songs', songRoutes);
 app.use('/api/like', likeRoutes);
+app.use('/api/playlist/', playlistRoutes);
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);

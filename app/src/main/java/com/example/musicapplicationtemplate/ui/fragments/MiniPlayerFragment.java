@@ -183,7 +183,7 @@ public class MiniPlayerFragment extends Fragment {
         getParentFragmentManager().beginTransaction()
                 .setCustomAnimations(R.anim.slide_up, 0)
                 .add(R.id.fragment_container, new PlayerFragment())
-                .addToBackStack(null) // Lưu trạng thái fragment trước đó
+                .addToBackStack("PlayerFragment")
                 .commit();
         MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.toggleMiniPlayerVisibility(false); // Ẩn MiniPlayerFragment khi mở PlayerFragment

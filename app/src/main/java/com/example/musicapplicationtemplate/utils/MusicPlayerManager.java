@@ -26,7 +26,7 @@ public class MusicPlayerManager {
     private OnSongChangedListener songChangedListener;
     private Handler seekBarHandler = new Handler();
 
-    private MusicPlayerManager() {
+    public MusicPlayerManager() {
         mediaPlayer = new MediaPlayer();
         playlist = new ArrayList<>();
         currentIndex = 0;

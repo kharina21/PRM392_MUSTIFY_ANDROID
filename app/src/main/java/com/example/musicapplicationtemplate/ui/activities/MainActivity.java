@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
         }
 
-        if (musicPlayerManager.checkMediaPlayer() == true) {
+        if (musicPlayerManager.getCurrentSong() != null && musicPlayerManager.isPlaying()) {
             Log.d("MediaPlayer-MainActivity","GetCurrentSong: "+musicPlayerManager.getCurrentSong());
             toggleMiniPlayerVisibility(true);
         } else {
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                                 .commit();
 
                         // Chỉ hiển thị MiniPlayerFragment nếu có bài hát đang phát
-                        if (mediaPlayer != null) {
+                        if (musicPlayerManager.getCurrentSong() != null && musicPlayerManager.isPlaying()) {
                             Log.d("GetCurrentSong","GetCurrentSong: "+musicPlayerManager.getCurrentSong());
                             toggleMiniPlayerVisibility(true);
                         } else {

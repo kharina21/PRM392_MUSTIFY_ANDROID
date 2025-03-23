@@ -5,6 +5,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.musicapplicationtemplate.api.ApiService.ApiClient;
+import com.example.musicapplicationtemplate.api.ApiService.ApiLikeService;
+import com.example.musicapplicationtemplate.api.ApiService.ApiResponse;
 import com.example.musicapplicationtemplate.api.ApiService.ApiSongService;
 import com.example.musicapplicationtemplate.model.Song;
 
@@ -20,8 +22,56 @@ public class SongViewModel extends ViewModel {
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
 
+    private final MutableLiveData<Song> songLikeByUserIdAndSongId = new MutableLiveData<>();
     private final ApiSongService ass = ApiClient.getClient().create(ApiSongService.class);
 
+    public void fetchSongLikeByUserIdAndSongId(int userId, int songId){
+        ass.getSongLikeByUserIdAndSongId(userId, songId).enqueue(new Callback<Song>() {
+            @Override
+            public void onResponse(Call<Song> call, Response<Song> response) {
+                if(response.isSuccessful() && response.body() != null){
+                    songLikeByUserIdAndSongId.postValue(response.body());
+                }else{
+                    errorMessage.postValue("fail to get songLikeByUserIdAndSongId");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Song> call, Throwable t) {
+                errorMessage.postValue("connection error: "+t);
+            }
+        });
+    }
+
+    public void addSongToLikes(int uId, int sId){
+        ApiLikeService als = ApiClient.getClient().create(ApiLikeService.class);
+        als.addSongToListLike(uId,sId).enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void removeSongFromLikes(int uId, int sId){
+        ApiLikeService als = ApiClient.getClient().create(ApiLikeService.class);
+        als.deleteSongInListLike(uId,sId).enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+
+            }
+        });
+    }
     public void fetchLastestSongs() {
         isLoading.postValue(true);
         ass.getLastestSongs().enqueue(new Callback<List<Song>>() {
@@ -65,6 +115,9 @@ public class SongViewModel extends ViewModel {
     }
 
     // Getter cho LiveData
+    public LiveData<Song> getSongLikeByUserIdAndSongId(){
+        return songLikeByUserIdAndSongId;
+    }
     public LiveData<List<Song>> getLatestSongs() {
         return lastestSongs;
     }

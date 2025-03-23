@@ -3,20 +3,21 @@ package com.example.musicapplicationtemplate.model;
 import java.io.Serializable;
 import java.util.Date;
 
-public class PlayList implements Serializable {
+public class Playlist implements Serializable {
     private int playlist_id;
     private String playlist_name;
-    private User user;
-
+    private int user_id;
+    private int song_count;
     private Date created_date;
 
-    public PlayList() {
+    public Playlist() {
     }
 
-    public PlayList(int playlist_id, String playlist_name, User user, Date created_date) {
+    public Playlist(int playlist_id, String playlist_name, int user_id,int song_count, Date created_date) {
         this.playlist_id = playlist_id;
         this.playlist_name = playlist_name;
-        this.user = user;
+        this.user_id = user_id;
+        this.song_count = song_count;
         this.created_date = created_date;
     }
 
@@ -36,12 +37,20 @@ public class PlayList implements Serializable {
         this.playlist_name = playlist_name;
     }
 
-    public User getUser() {
-        return user;
+    public int getUser() {
+        return user_id;
     }
 
     public void setUser(User user) {
-        this.user = user;
+        this.user_id = user_id;
+    }
+
+    public int getSong_count() {
+        return song_count;
+    }
+
+    public void setSong_count(int song_count) {
+        this.song_count = song_count;
     }
 
     public Date getCreated_date() {

@@ -41,7 +41,7 @@ public class PlayerFragment extends Fragment {
     private MusicPlayerManager musicPlayerManager;
     private boolean isShuffle;
     private boolean isSongLiked = false;
-    private ImageView btnDown;
+    private ImageView btnDown,playerPlaylist;
     private MediaPlayer mediaPlayer = new MediaPlayer();
 
     private LikeViewModel likeViewModel;
@@ -51,7 +51,6 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        songViewModel = new ViewModelProvider(this).get(SongViewModel.class);
         likeViewModel = new ViewModelProvider(this).get(LikeViewModel.class);
 
     }
@@ -62,6 +61,8 @@ public class PlayerFragment extends Fragment {
 
         playerImage = view.findViewById(R.id.player_image);
         playerTitle = view.findViewById(R.id.player_title);
+        playerPlaylist = view.findViewById(R.id.playerPlaylist);
+        playerPlaylist.setOnClickListener(v->toggleOpenPlaylist());
         playerArtist = view.findViewById(R.id.player_artist);
         playerPlayPause = view.findViewById(R.id.playerPlayPause);
         playerPlayPause.setOnClickListener(v -> togglePlayPause());
@@ -108,6 +109,22 @@ public class PlayerFragment extends Fragment {
         musicPlayerManager.setShuffle(isShuffle);
         Log.d("PlayerFragment", "Shuffle mode: " + isShuffle); // Kiểm tra trạng thái
         playerShuffle.setImageResource(isShuffle ? R.drawable.shuffle : R.drawable.shuffle_off);
+    }
+
+    private void toggleOpenPlaylist(){
+        AddToPlaylistFragment addToPlaylistFragment = new AddToPlaylistFragment();
+        // Đóng gói dữ liệu vào Bundle
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("selected_song", musicPlayerManager.getCurrentSong()); // Hoặc putParcelable nếu Song là Parcelable
+        addToPlaylistFragment.setArguments(bundle);
+        getParentFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.slide_up, 0)
+                .add(R.id.fragment_container, addToPlaylistFragment)
+                .addToBackStack(null) // Lưu trạng thái fragment trước đó
+                .commit();
+//        MainActivity mainActivity = (MainActivity) getActivity();
+//        mainActivity.toggleMiniPlayerVisibility(false); // Ẩn MiniPlayerFragment khi mở PlayerFragment
+//        mainActivity.toggleBottomNavigationVisibility(false);
     }
 
     private void setBackgroundFromAlbumArt(Bitmap bitmap) {

@@ -75,3 +75,44 @@ export async function getAllSongs(req, res) {
             .json({ message: `Interval server error: ${err}` });
     }
 }
+
+export async function getSongLikeByUserIdAndSongId(req, res) {
+    const { userId, songId } = req.body;
+    const query = `SELECT [like_id]
+      ,l.[user_id]
+      ,l.[song_id]
+      ,s.album, s.artist, s.created_date, s.duration, s.file_path, s.image, s.title, s.type_id
+  FROM [MUSTIFY].[dbo].[Likes] l
+  join Song s on l.song_id = s.song_id
+  where l.user_id = @userId and l.song_id = @songId`;
+
+    try {
+        const pool = await getConnection();
+        const rs = await pool
+            .request()
+            .input('userId', sql.Int, userId)
+            .input('songId', sql.Int, songId)
+            .query(query);
+        if (rs.recordset.length > 0) {
+            const song = rs.recordset[0];
+            const songResponse = {
+                song_id: song.song_id,
+                title: song.title,
+                type_id: song.type_id,
+                artist: song.artist,
+                album: song.album,
+                duration: song.duration,
+                file_path: song.file_path,
+                created_date: song.created_date,
+                image: song.image,
+            };
+            return res.json(songResponse);
+        } else {
+            return res.status(404).json({ message: 'song not found' });
+        }
+    } catch (err) {
+        return res.json({
+            message: `fail to get song like by user id and song id: ${err}`,
+        });
+    }
+}

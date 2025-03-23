@@ -19,6 +19,9 @@ import com.example.musicapplicationtemplate.api.ApiService.ApiClient;
 import com.example.musicapplicationtemplate.api.ApiService.ApiLikeService;
 import com.example.musicapplicationtemplate.api.ApiService.ApiRecentlyPlayedService;
 import com.example.musicapplicationtemplate.api.ApiService.ApiResponse;
+import com.example.musicapplicationtemplate.ui.activities.MainActivity;
+import com.example.musicapplicationtemplate.ui.fragments.AddToPlaylistFragment;
+import com.example.musicapplicationtemplate.ui.fragments.PlayerFragment;
 import com.example.musicapplicationtemplate.utils.UserSession;
 import java.util.List;
 import com.example.musicapplicationtemplate.model.Song;
@@ -104,7 +107,26 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 songClickListener.onSongClick(song);
                 return true;
             } else if (item.getItemId() == R.id.option_add_to_playlist) {
-                Toast.makeText(context, "Added to Playlist: " + song.getTitle(), Toast.LENGTH_SHORT).show();
+                AddToPlaylistFragment addToPlaylistFragment = new AddToPlaylistFragment();
+                // Đóng gói dữ liệu vào Bundle
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("selected_song", song); // Hoặc putParcelable nếu Song là Parcelable
+                addToPlaylistFragment.setArguments(bundle);
+
+                if (context instanceof AppCompatActivity) {
+                    AppCompatActivity activity = (AppCompatActivity) context;
+                    activity.getSupportFragmentManager().beginTransaction()
+                            .setCustomAnimations(R.anim.slide_up, 0)
+                            .add(R.id.fragment_container, addToPlaylistFragment)
+                            .addToBackStack(null)
+                            .commit();
+                }
+                if (context instanceof MainActivity) {
+                    MainActivity mainActivity = (MainActivity) context;
+                    mainActivity.toggleMiniPlayerVisibility(false);
+                    mainActivity.toggleBottomNavigationVisibility(false);
+                }
+//                Toast.makeText(context, "Added to Playlist: " + song.getTitle(), Toast.LENGTH_SHORT).show();
                 return true;
             } else if (item.getItemId() == R.id.option_delete) {
                 als = ApiClient.getClient().create(ApiLikeService.class);
