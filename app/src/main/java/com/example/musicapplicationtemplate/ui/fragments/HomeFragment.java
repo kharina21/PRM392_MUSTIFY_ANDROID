@@ -138,31 +138,7 @@ public class HomeFragment extends Fragment implements MusicPlayerManager.OnPlayb
             rvRecentlyPlayed.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         });
 
-//        ApiRecentlyPlayedService arps = ApiClient.getClient().create(ApiRecentlyPlayedService.class);
-//        arps.get10SongsRecentlyPlayedByUserId(usersession.getUserSession().getId())
-//                .enqueue(new Callback<List<RecentlyPlayed>>() {
-//            @Override
-//            public void onResponse(Call<List<RecentlyPlayed>> call,Response<List<RecentlyPlayed>> response) {
-//                if(response.isSuccessful() && response.body() != null){
-//                    List<RecentlyPlayed> listRecentlyPlayed = response.body();
-//                    List<Song> listSongRecentlyPlayed = new ArrayList<>();
-//                    for (RecentlyPlayed rp : listRecentlyPlayed) {
-//                        listSongRecentlyPlayed.add(rp.getSong());
-//                    }
-//                    SongAdapter songAdapter2 = new SongAdapter(getContext(), listSongRecentlyPlayed, R.layout.item_song_2, song->playSong(song));
-//                    rvRecentlyPlayed.setAdapter(songAdapter2);
-//                    rvRecentlyPlayed.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-//                }else{
-//                    Log.d("list RP: ","list RP is null");
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call call, Throwable t) {
-//                Log.e("API Error", "Failed to fetch recently played songs", t);
-//            }
-//
-//        });
+
     }
     private void playSong(Song song) {
         if (musicPlayerManager != null) {

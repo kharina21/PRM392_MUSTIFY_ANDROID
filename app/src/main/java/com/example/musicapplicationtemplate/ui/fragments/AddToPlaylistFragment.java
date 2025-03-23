@@ -78,7 +78,7 @@ public class AddToPlaylistFragment extends Fragment {
         addSongToLikesRelated = view.findViewById(R.id.addSongToLikesRelated);
 
         btnNewPlaylist = view.findViewById(R.id.btnNewPlaylist);
-        btnNewPlaylist.setOnClickListener(v->oppenCreatePlaylistDialog());
+        btnNewPlaylist.setOnClickListener(v->openCreatePlaylistDialog());
 
         listPlaylistSaved = view.findViewById(R.id.listPlaylistSaved);
         listRelatedPlaylist = view.findViewById(R.id.listRelatedPlaylist);
@@ -111,6 +111,10 @@ public class AddToPlaylistFragment extends Fragment {
                     updateUIBasedOnSongRelatedStatus(isChecked);
                 }
             });
+
+            Bundle result = new Bundle();
+            result.putBoolean("isUpdated", true);
+            getParentFragmentManager().setFragmentResult("updateSongList", result);
         }
 
         //list view contain song
@@ -150,7 +154,7 @@ public class AddToPlaylistFragment extends Fragment {
         // Có thể thêm xử lý UI khác nếu cần
     }
 
-    private void oppenCreatePlaylistDialog() {
+    private void openCreatePlaylistDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("Tạo Playlist Mới");
 
@@ -214,6 +218,8 @@ public class AddToPlaylistFragment extends Fragment {
         }
         updateDatabaseWithFinalSelection(selectedSong);
         toggleAddPlaylistCancel();
+        playlistViewModel.fetchListPlaylistContainSong(userSession.getUserSession().getId(), selectedSong.getSong_id()); // Cập nhật ngay lập tức
+
         // Gửi thông báo cập nhậtv
         Bundle result = new Bundle();
         result.putBoolean("isUpdated", true);

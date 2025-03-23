@@ -22,6 +22,8 @@ public class SongViewModel extends ViewModel {
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
 
+    private final MutableLiveData<List<Song>> listSongsByPlaylistId = new MutableLiveData<>();
+
     private final MutableLiveData<Song> songLikeByUserIdAndSongId = new MutableLiveData<>();
     private final ApiSongService ass = ApiClient.getClient().create(ApiSongService.class);
 
@@ -32,6 +34,7 @@ public class SongViewModel extends ViewModel {
                 if(response.isSuccessful() && response.body() != null){
                     songLikeByUserIdAndSongId.postValue(response.body());
                 }else{
+                    songLikeByUserIdAndSongId.postValue(null);
                     errorMessage.postValue("fail to get songLikeByUserIdAndSongId");
                 }
             }
@@ -54,6 +57,24 @@ public class SongViewModel extends ViewModel {
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
 
+            }
+        });
+    }
+
+    public void fetchListSongsByPlaylistId(int pId){
+        ass.getListSongsByPlaylistId(pId).enqueue(new Callback<List<Song>>() {
+            @Override
+            public void onResponse(Call<List<Song>> call, Response<List<Song>> response) {
+                if (response.isSuccessful() && response.body() != null){
+                    listSongsByPlaylistId.postValue(response.body());
+                }else{
+                    errorMessage.postValue("fail to get list song by playlist ID");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Song>> call, Throwable t) {
+                errorMessage.postValue("connection error: "+t);
             }
         });
     }
@@ -117,6 +138,10 @@ public class SongViewModel extends ViewModel {
     // Getter cho LiveData
     public LiveData<Song> getSongLikeByUserIdAndSongId(){
         return songLikeByUserIdAndSongId;
+    }
+
+    public LiveData<List<Song>> getListSongsByPlaylistId(){
+        return listSongsByPlaylistId;
     }
     public LiveData<List<Song>> getLatestSongs() {
         return lastestSongs;

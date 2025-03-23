@@ -6,6 +6,7 @@ import {
     deleteSongToPlaylist,
     createPlaylist,
     deletePlaylist,
+    getAllPlaylist,
 } from '../controller/playlistController.js';
 const router = express.Router();
 
@@ -15,5 +16,6 @@ router.post('/addSongToPlaylist', addSongToPlaylist);
 router.post('/deleteSongToPlaylist', deleteSongToPlaylist);
 router.post('/createPlaylist', createPlaylist);
 router.post('/deletePlaylist', deletePlaylist);
+router.post('/getAllPlaylist', getAllPlaylist);
 
 export default router;

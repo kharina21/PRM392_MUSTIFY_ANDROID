@@ -101,6 +101,13 @@ public class PlayerFragment extends Fragment {
         playerShuffle.setOnClickListener(v -> toggleShuffle());
         playerRepeat.setOnClickListener(v -> toggleRepeat());
 
+        getParentFragmentManager().setFragmentResultListener("updateSongList", this, (requestKey, bundle) -> {
+            boolean isUpdated = bundle.getBoolean("isUpdated", false);
+            if (isUpdated) {
+                checkIsLikeSong(); // Cập nhật trạng thái thích
+            }
+        });
+
         return view;
     }
 

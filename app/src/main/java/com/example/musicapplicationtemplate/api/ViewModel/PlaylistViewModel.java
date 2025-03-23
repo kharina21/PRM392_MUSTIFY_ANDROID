@@ -1,5 +1,7 @@
 package com.example.musicapplicationtemplate.api.ViewModel;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -21,11 +23,35 @@ public class PlaylistViewModel extends ViewModel {
 
     private MutableLiveData<List<Playlist>> listPlaylistContainSong = new MutableLiveData<>();
     private MutableLiveData<List<Playlist>> listPlaylistNotContainSong = new MutableLiveData<>();
+    private MutableLiveData<List<Playlist>> allPlaylist = new MutableLiveData<>();
 
     private MutableLiveData<Boolean> isAdd = new MutableLiveData<>();
     private MutableLiveData<Boolean> isDelete = new MutableLiveData<>();
 
     private MutableLiveData<String> errorMessage = new MutableLiveData<>();
+
+    public void fetchAllPlaylist(int uId) {
+        apls.getAllPlaylist(uId).enqueue(new Callback<List<Playlist>>() {
+            @Override
+            public void onResponse(Call<List<Playlist>> call, Response<List<Playlist>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    allPlaylist.postValue(response.body());
+                    Log.d("PlaylistViewModel", "list playlist: "+response.body());
+                } else {
+                    String error = "Failed to get playlist. Code: " + response.code();
+                    Log.e("PlaylistViewModel", error);
+                    errorMessage.postValue(error);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Playlist>> call, Throwable t) {
+                String error = "Connection error: " + t.getMessage();
+                Log.e("PlaylistViewModel", error);
+                errorMessage.postValue(error);
+            }
+        });
+    }
 
     public void fetchListPlaylistContainSong(int userId, int songId) {
         apls.getListPlaylistContainSong(userId, songId).enqueue(new Callback<List<Playlist>>() {
@@ -131,7 +157,9 @@ public class PlaylistViewModel extends ViewModel {
         });
     }
 
-
+ public LiveData<List<Playlist>> getAllPlaylist(){
+        return allPlaylist;
+ }
     public LiveData<List<Playlist>> getListPlaylistNotContainSong() {
         return listPlaylistNotContainSong;
     }

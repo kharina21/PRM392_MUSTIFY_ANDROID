@@ -52,4 +52,10 @@ public interface ApiPlaylistService {
     Call<ApiResponse>deletePlaylist(
             @Field("playlistId") int playlistId
     );
+
+    @POST("/api/playlist/getAllPlaylist")
+    @FormUrlEncoded
+    Call<List<Playlist>> getAllPlaylist(
+            @Field("userId") int uId
+    );
 }

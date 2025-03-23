@@ -5,10 +5,12 @@ import com.example.musicapplicationtemplate.model.Song;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 
 public interface ApiSongService {
     @GET("api/songs/getLastestSongs")
@@ -24,4 +26,13 @@ public interface ApiSongService {
             @Field("songId") int songId
     );
 
+    @POST("api/songs/getListSongsByPlaylistId")
+    @FormUrlEncoded
+    Call<List<Song>> getListSongsByPlaylistId(@Field("playlistId") int pId);
+
+    @POST("api/songs/deleteSongFromPlaylist")
+    @FormUrlEncoded
+    Call<ApiResponse> deleteSongFromPlaylist(
+            @Field("playlistId") int playlistId,
+            @Field("songId") int songId);
 }
