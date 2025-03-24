@@ -35,4 +35,8 @@ public interface ApiSongService {
     Call<ApiResponse> deleteSongFromPlaylist(
             @Field("playlistId") int playlistId,
             @Field("songId") int songId);
+
+    @POST("api/songs/getListSongByTitle")
+    @FormUrlEncoded
+    Call<List<Song>> getListSongByTitle(@Field("title") String title);
 }

@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.musicapplicationtemplate.R;
@@ -22,6 +23,7 @@ import com.example.musicapplicationtemplate.api.ApiService.ApiResponse;
 import com.example.musicapplicationtemplate.ui.activities.MainActivity;
 import com.example.musicapplicationtemplate.ui.fragments.AddToPlaylistFragment;
 import com.example.musicapplicationtemplate.ui.fragments.PlayerFragment;
+import com.example.musicapplicationtemplate.ui.fragments.SearchFragment;
 import com.example.musicapplicationtemplate.utils.UserSession;
 import java.util.List;
 import com.example.musicapplicationtemplate.model.Song;
@@ -101,6 +103,15 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         PopupMenu popup = new PopupMenu(context, v);
         popup.inflate(R.menu.song_options_menu);
 
+        // Kiểm tra nếu Fragment hiện tại là SearchFragment thì ẩn option_delete
+        if (context instanceof AppCompatActivity) {
+            AppCompatActivity activity = (AppCompatActivity) context;
+            Fragment currentFragment = activity.getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            if (currentFragment instanceof SearchFragment) {
+                popup.getMenu().findItem(R.id.option_delete).setVisible(false);
+            }
+        }
+
         popup.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.option_play) {
                 Toast.makeText(context, "Play " + song.getTitle(), Toast.LENGTH_SHORT).show();
@@ -108,9 +119,8 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 return true;
             } else if (item.getItemId() == R.id.option_add_to_playlist) {
                 AddToPlaylistFragment addToPlaylistFragment = new AddToPlaylistFragment();
-                // Đóng gói dữ liệu vào Bundle
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("selected_song", song); // Hoặc putParcelable nếu Song là Parcelable
+                bundle.putSerializable("selected_song", song);
                 addToPlaylistFragment.setArguments(bundle);
 
                 if (context instanceof AppCompatActivity) {
@@ -126,20 +136,17 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                     mainActivity.toggleMiniPlayerVisibility(false);
                     mainActivity.toggleBottomNavigationVisibility(false);
                 }
-//                Toast.makeText(context, "Added to Playlist: " + song.getTitle(), Toast.LENGTH_SHORT).show();
                 return true;
             } else if (item.getItemId() == R.id.option_delete) {
                 als = ApiClient.getClient().create(ApiLikeService.class);
-                als.deleteSongInListLike(usersession.getUserSession().getId(),song.getSong_id()).enqueue(new Callback<ApiResponse>() {
+                als.deleteSongInListLike(usersession.getUserSession().getId(), song.getSong_id()).enqueue(new Callback<ApiResponse>() {
                     @Override
                     public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
-                        //update rv
                         int position = songs.indexOf(song);
                         if (position != -1) {
                             songs.remove(position);
-                            notifyItemRemoved(position); // Cập nhật RecyclerView
+                            notifyItemRemoved(position);
                         }
-                        // Gửi thông báo cập nhật
                         if (context instanceof AppCompatActivity) {
                             Bundle result = new Bundle();
                             result.putBoolean("isUpdated", true);
@@ -151,14 +158,18 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                     @Override
                     public void onFailure(Call<ApiResponse> call, Throwable t) {
                     }
-                });return true;
-
-            } else {
-                return false;
+                });
+                return true;
             }
+            return false;
         });
 
         popup.show();
+    }
+
+    public void updateList(List<Song> newSongs) {
+        this.songs = newSongs;
+        notifyDataSetChanged();
     }
 
     @Override

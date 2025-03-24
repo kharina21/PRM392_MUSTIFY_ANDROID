@@ -35,7 +35,45 @@ export async function getLastestSongs(req, res) {
         return res.status(500).json({ message: 'Interval server error', err });
     }
 }
-
+export async function getListSongByTitle(req, res) {
+    const { title } = req.body;
+    const query = `SELECT [song_id]
+      ,[title]
+      ,[type_id]
+      ,[artist]
+      ,[album]
+      ,[duration]
+      ,[file_path]
+      ,[created_date]
+      ,[image]
+FROM [MUSTIFY].[dbo].[Song] 
+WHERE title LIKE @title`;
+    try {
+        const pool = await getConnection();
+        const result = await pool
+            .request()
+            .input('title', sql.NVarChar, `%${title}%`)
+            .query(query);
+        const songs = result.recordset.map((row) => {
+            return {
+                song_id: row.song_id,
+                title: row.title,
+                type_id: row.type_id,
+                artist: row.artist,
+                album: row.album,
+                duration: row.duration,
+                file_path: row.file_path,
+                created_date: row.created_date,
+                image: row.image,
+            };
+        });
+        if (songs.length > 0) {
+            return res.json(songs);
+        } else return res.status(404).json({ message: `failed to load songs` });
+    } catch (err) {
+        return res.status(500).json({ message: 'Interval server error', err });
+    }
+}
 export async function deleteSongFromPlaylist(req, res) {
     const { playlistId, songId } = req.body;
     const query = `DELETE FROM [dbo].[Playlist_song]

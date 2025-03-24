@@ -24,6 +24,8 @@ public class SongViewModel extends ViewModel {
 
     private final MutableLiveData<List<Song>> listSongsByPlaylistId = new MutableLiveData<>();
 
+    private final MutableLiveData<List<Song>> listSongByTitle = new MutableLiveData<>();
+
     private final MutableLiveData<Song> songLikeByUserIdAndSongId = new MutableLiveData<>();
     private final ApiSongService ass = ApiClient.getClient().create(ApiSongService.class);
 
@@ -61,6 +63,8 @@ public class SongViewModel extends ViewModel {
         });
     }
 
+
+
     public void fetchListSongsByPlaylistId(int pId){
         ass.getListSongsByPlaylistId(pId).enqueue(new Callback<List<Song>>() {
             @Override
@@ -89,6 +93,24 @@ public class SongViewModel extends ViewModel {
 
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void fetchListSongByTitle(String title){
+        ass.getListSongByTitle(title).enqueue(new Callback<List<Song>>() {
+            @Override
+            public void onResponse(Call<List<Song>> call, Response<List<Song>> response) {
+                if(response.isSuccessful() && response.body() != null){
+                    listSongByTitle.postValue(response.body());
+                }else{
+                    errorMessage.postValue("fail to get list song by title");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Song>> call, Throwable t) {
 
             }
         });
@@ -158,5 +180,7 @@ public class SongViewModel extends ViewModel {
     public LiveData<String> getErrorMessage(){
         return errorMessage;
     }
+
+    public LiveData<List<Song>> getListSongByTitle(){ return listSongByTitle;}
 
 }

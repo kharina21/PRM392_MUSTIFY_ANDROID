@@ -101,8 +101,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     User user = response.body();
                     Log.d("API-USER-RESPONSE-BODY", "RESPONSE: " + response.body());
-                    Log.d("API-USER-RESPONSE-BODY", "RESPONSE Email: " + user.getEmail());
-                    Log.d("API-USER", "User nhận được từ login: " + user.getUsername() + "| user id: " + user.getId());
+                    Log.d("API-USER", "User nhận được từ login: " + user.getUsername() + "| user id: " + user.getId() +"| Fullname: "+user.getFirst_name()+" "+user.getLast_name());
 
                     if (user.isIs_active()) {
                         // Lưu user vào SharedPreferences thông qua UserSession

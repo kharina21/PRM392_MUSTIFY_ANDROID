@@ -25,7 +25,7 @@ export async function getExistUser(req, res) {
                 username: user.username,
                 password: user.password,
                 first_name: user.first_name,
-                last_name: user.last_Name,
+                last_name: user.last_name,
                 gender: user.gender,
                 phone: user.phone,
                 email: user.email,

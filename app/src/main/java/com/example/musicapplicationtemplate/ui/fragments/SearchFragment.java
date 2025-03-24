@@ -1,66 +1,149 @@
 package com.example.musicapplicationtemplate.ui.fragments;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SearchView;
 
 import com.example.musicapplicationtemplate.R;
+import com.example.musicapplicationtemplate.adapter.SongAdapter;
+import com.example.musicapplicationtemplate.api.ViewModel.RecentlyPlayedViewModel;
+import com.example.musicapplicationtemplate.api.ViewModel.SongViewModel;
+import com.example.musicapplicationtemplate.model.Song;
+import com.example.musicapplicationtemplate.ui.activities.MainActivity;
+import com.example.musicapplicationtemplate.utils.MusicPlayerManager;
+import com.example.musicapplicationtemplate.utils.UserSession;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SearchFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.List;
+
 public class SearchFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private SearchView searchView;
+    private RecyclerView rvSearchResult;  // Thêm RecyclerView
+    private SongAdapter songAdapter;
+    private SongViewModel songViewModel;
+    private RecentlyPlayedViewModel recentlyPlayedViewModel;
+    private MusicPlayerManager musicPlayerManager;
+    private UserSession userSession;
+    private Handler handler = new Handler();
+    private MediaPlayer mediaPlayer;
+    private MiniPlayerFragment miniPlayerFragment;
 
     public SearchFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SearchFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static SearchFragment newInstance(String param1, String param2) {
-        SearchFragment fragment = new SearchFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+        songViewModel = new ViewModelProvider(this).get(SongViewModel.class);
+        recentlyPlayedViewModel = new ViewModelProvider(this).get(RecentlyPlayedViewModel.class);
+        musicPlayerManager = MusicPlayerManager.getInstance();
+        userSession = new UserSession(requireContext());
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_search, container, false);
+
+        searchView = view.findViewById(R.id.searchView);
+        rvSearchResult = view.findViewById(R.id.RvSearchResult);  // Ánh xạ RecyclerView
+        rvSearchResult.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // Khởi tạo adapter rỗng
+        songAdapter = new SongAdapter(getContext(), List.of(), R.layout.item_song_1, this::playSong);
+        rvSearchResult.setAdapter(songAdapter);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                if (!query.isEmpty()) {
+                    searchSongs(query);
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (newText.isEmpty()) {
+                    songAdapter.updateList(List.of()); // Xóa danh sách khi search rỗng
+                } else {
+                    searchSongs(newText);
+                }
+                return true;
+            }
+        });
+
+        return view;
+    }
+
+    private void searchSongs(String query) {
+        Log.d("SearchFragment", "Đang tìm kiếm bài hát: " + query);
+
+        songViewModel.fetchListSongByTitle(query);
+        songViewModel.getListSongByTitle().observe(getViewLifecycleOwner(), list -> {
+            if (list != null) {
+                songAdapter.updateList(list);  // Cập nhật dữ liệu vào adapter
+            }
+        });
+    }
+
+    private void playSong(Song song) {
+        if (musicPlayerManager == null) return;
+
+        songViewModel.fetchAllSongs();
+        songViewModel.getAllSongs().observe(getViewLifecycleOwner(), listAllSongs -> {
+            if (listAllSongs != null) {
+                int index = -1;
+                for (int i = 0; i < listAllSongs.size(); i++) {
+                    if (listAllSongs.get(i).getSong_id() == song.getSong_id()) {
+                        index = i;
+                        break;
+                    }
+                }
+                musicPlayerManager.setPlaylist(listAllSongs, index);
+            }
+        });
+
+        musicPlayerManager.playSong(getContext(), song);
+        recentlyPlayedViewModel.fetchIsAddRecentlyPlayed(userSession.getUserSession().getId(), song.getSong_id());
+
+        updateMiniPlayer();
+    }
+
+    private void updateMiniPlayer() {
+        if (getActivity() instanceof MainActivity) {
+            MainActivity activity = (MainActivity) getActivity();
+            MiniPlayerFragment miniPlayerFragment = (MiniPlayerFragment) activity.getSupportFragmentManager().findFragmentById(R.id.miniPlayerFragment);
+
+            if (miniPlayerFragment != null) {
+                miniPlayerFragment.updateMiniPlayerUI();
+                miniPlayerFragment.getView().setVisibility(View.VISIBLE);
+                activity.toggleMiniPlayerVisibility(true);
+            }
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false);
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+        handler.removeCallbacksAndMessages(null);
     }
 }
